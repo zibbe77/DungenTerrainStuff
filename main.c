@@ -13,7 +13,11 @@
 
 int seed = 0;
 int tileSize = 32;
+
 float *baseTerrienMap;
+float *moreDetailMap;
+
+float *endMap;
 
 typedef enum tile_types_e
 {
@@ -65,23 +69,23 @@ tile_types_e TypeControler(int arrayNum)
 {
     // printf("test 1 %f \n", baseTerrienMap[arrayNum]);
     // printf("test %d \n", arrayNum);
-    if (baseTerrienMap[arrayNum] < 0.3f)
+    if (endMap[arrayNum] < 0.3f)
     {
         return TILE_DEEP_WATER;
     }
-    else if (baseTerrienMap[arrayNum] < 0.4f)
+    else if (endMap[arrayNum] < 0.4f)
     {
         return TILE_WATER;
     }
-    else if (baseTerrienMap[arrayNum] < 0.6f)
+    else if (endMap[arrayNum] < 0.6f)
     {
         return TILE_GRASS;
     }
-    else if (baseTerrienMap[arrayNum] < 0.69f)
+    else if (endMap[arrayNum] < 0.69f)
     {
         return TILE_MOUNTAIN;
     }
-    else
+    else if (endMap[arrayNum] < 1)
     {
         return TILE_HIGH_MOUNTAIN;
     }
@@ -93,23 +97,23 @@ tile_types_e TypeControler(int arrayNum)
 
 map_t InitializeMap(int width, int height, int tileSize)
 {
-    map_t baseTerrienMap = (map_t){
+    map_t output = (map_t){
         .width = width,
         .height = height,
         .tileSize = tileSize,
         .tiles = (tile_t *)malloc(width * height * sizeof(tile_t))};
 
-    for (int y = 0; y < baseTerrienMap.height; y++)
+    for (int y = 0; y < output.height; y++)
     {
-        for (int x = 0; x < baseTerrienMap.width; x++)
+        for (int x = 0; x < output.width; x++)
         {
-            baseTerrienMap.tiles[y * baseTerrienMap.width + x] = (tile_t){
-                .type = TypeControler(y * baseTerrienMap.width + x),
+            output.tiles[y * output.width + x] = (tile_t){
+                .type = TypeControler(y * output.width + x),
                 .x = x,
                 .y = y};
         }
     }
-    return baseTerrienMap;
+    return output;
 }
 
 void FreeMap(map_t *map)
@@ -182,18 +186,41 @@ void CreatTileMap()
     float height = main_window_C.height / tileSize;
 }
 
-// noise gen
-//------------------------------------------------------------------------
-void PopPerlinNoiseArray(int width, int height)
+void clearData(int width, int height, float *dataArray)
 {
     for (int y = 0; y < height; y++)
     {
         for (int x = 0; x < width; x++)
         {
-            baseTerrienMap[y * width + x] = Perlin_Get2d(x, y, 0.08, 7);
-            printf("; %f", baseTerrienMap[y * width + x]);
+            dataArray[y * width + x] = 0;
+        }
+    }
+}
+// noise gen
+//------------------------------------------------------------------------
+void PopPerlinNoiseArray(int width, int height, float *dataArray, double freq, int depth)
+{
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            dataArray[y * width + x] += Perlin_Get2d(x, y, freq, depth);
+            // printf("; %f", baseTerrienMap[y * width + x]);
         }
         // printf("\n--------------------------\n");
+    }
+}
+
+void Addmaps(int width, int height)
+{
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            endMap[y * width + x] = (baseTerrienMap[y * width + x] + moreDetailMap[y * width + x] / 2);
+            printf("; %f", endMap[y * width + x]);
+        }
+        printf("\n--------------------------\n");
     }
 }
 
@@ -204,13 +231,25 @@ int main()
     ComfigSeed();
     gen_seed();
 
-    // Makes map
+    // Makes maps
     baseTerrienMap = MallocFloatArrys(baseTerrienMap, WorkingMapWidth, WorkingMapHeight);
+    moreDetailMap = MallocFloatArrys(moreDetailMap, WorkingMapWidth, WorkingMapHeight);
 
-    TurnOnSeedOffset(true);
+    endMap = MallocFloatArrys(endMap, WorkingMapWidth, WorkingMapHeight);
+
+    // Clear data
+    clearData(WorkingMapWidth, WorkingMapHeight, baseTerrienMap);
+    clearData(WorkingMapWidth, WorkingMapHeight, moreDetailMap);
+    clearData(WorkingMapWidth, WorkingMapHeight, endMap);
 
     // makes Hight map
-    PopPerlinNoiseArray(WorkingMapWidth, WorkingMapHeight);
+    PopPerlinNoiseArray(WorkingMapWidth, WorkingMapHeight, baseTerrienMap, 0.09, 2);
+
+    TurnOnSeedOffset(true);
+    PopPerlinNoiseArray(WorkingMapWidth, WorkingMapHeight, moreDetailMap, 0.01, 1);
+
+    // Puts maps togeder
+    Addmaps(WorkingMapWidth, WorkingMapHeight);
 
     // creats tiles + map
     map_t main_map = InitializeMap(WorkingMapWidth, WorkingMapHeight, 16);
