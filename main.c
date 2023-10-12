@@ -217,10 +217,10 @@ void Addmaps(int width, int height)
     {
         for (int x = 0; x < width; x++)
         {
-            endMap[y * width + x] = (baseTerrienMap[y * width + x] + moreDetailMap[y * width + x] / 2);
-            printf("; %f", endMap[y * width + x]);
+            endMap[y * width + x] = (baseTerrienMap[y * width + x] + moreDetailMap[y * width + x]) / 2;
+            // printf("; %f", endMap[y * width + x]);
         }
-        printf("\n--------------------------\n");
+        // printf("\n--------------------------\n");
     }
 }
 
@@ -243,16 +243,16 @@ int main()
     clearData(WorkingMapWidth, WorkingMapHeight, endMap);
 
     // makes Hight map
-    PopPerlinNoiseArray(WorkingMapWidth, WorkingMapHeight, baseTerrienMap, 0.09, 2);
+    PopPerlinNoiseArray(WorkingMapWidth, WorkingMapHeight, baseTerrienMap, 0.025, 4);
 
     TurnOnSeedOffset(true);
-    PopPerlinNoiseArray(WorkingMapWidth, WorkingMapHeight, moreDetailMap, 0.01, 1);
+    PopPerlinNoiseArray(WorkingMapWidth, WorkingMapHeight, moreDetailMap, 0.25, 4);
 
     // Puts maps togeder
     Addmaps(WorkingMapWidth, WorkingMapHeight);
 
     // creats tiles + map
-    map_t main_map = InitializeMap(WorkingMapWidth, WorkingMapHeight, 16);
+    map_t main_map = InitializeMap(WorkingMapWidth, WorkingMapHeight, 4);
 
     // makes window
     InitWindow(main_window_C.width, main_window_C.height, main_window_C.title.str);
