@@ -8,9 +8,12 @@
 
 #include "perlinNoise.c"
 
+#define WorkingMapWidth 124
+#define WorkingMapHeight 64
+
 int seed = 0;
 int tileSize = 32;
-float output[4096];
+float *baseTerrienMap;
 
 typedef enum tile_types_e
 {
@@ -60,21 +63,21 @@ typedef struct map_t
 
 tile_types_e TypeControler(int arrayNum)
 {
-    // printf("test 1 %f \n", output[arrayNum]);
+    // printf("test 1 %f \n", baseTerrienMap[arrayNum]);
     // printf("test %d \n", arrayNum);
-    if (output[arrayNum] < 0.3f)
+    if (baseTerrienMap[arrayNum] < 0.3f)
     {
         return TILE_DEEP_WATER;
     }
-    else if (output[arrayNum] < 0.4f)
+    else if (baseTerrienMap[arrayNum] < 0.4f)
     {
         return TILE_WATER;
     }
-    else if (output[arrayNum] < 0.6f)
+    else if (baseTerrienMap[arrayNum] < 0.6f)
     {
         return TILE_GRASS;
     }
-    else if (output[arrayNum] < 0.69f)
+    else if (baseTerrienMap[arrayNum] < 0.69f)
     {
         return TILE_MOUNTAIN;
     }
@@ -90,23 +93,23 @@ tile_types_e TypeControler(int arrayNum)
 
 map_t InitializeMap(int width, int height, int tileSize)
 {
-    map_t output = (map_t){
+    map_t baseTerrienMap = (map_t){
         .width = width,
         .height = height,
         .tileSize = tileSize,
         .tiles = (tile_t *)malloc(width * height * sizeof(tile_t))};
 
-    for (int y = 0; y < output.height; y++)
+    for (int y = 0; y < baseTerrienMap.height; y++)
     {
-        for (int x = 0; x < output.width; x++)
+        for (int x = 0; x < baseTerrienMap.width; x++)
         {
-            output.tiles[y * output.width + x] = (tile_t){
-                .type = TypeControler(y * output.width + x),
+            baseTerrienMap.tiles[y * baseTerrienMap.width + x] = (tile_t){
+                .type = TypeControler(y * baseTerrienMap.width + x),
                 .x = x,
                 .y = y};
         }
     }
-    return output;
+    return baseTerrienMap;
 }
 
 void FreeMap(map_t *map)
@@ -149,6 +152,15 @@ void DrawMap(map_t *map, int x, int y)
     }
 }
 
+// malloc Arrays
+//------------------------------------------------------------------------
+
+float *MallocFloatArrys(float *array, int width, int height)
+{
+    array = (float *)malloc(width * height * sizeof(float));
+    return array;
+}
+
 // random seed
 //------------------------------------------------------------------------
 void ComfigSeed()
@@ -178,8 +190,8 @@ void PopPerlinNoiseArray(int width, int height)
     {
         for (int x = 0; x < width; x++)
         {
-            output[y * width + x] = Perlin_Get2d(x, y, 0.08, 7);
-            printf("; %f", output[y * width + x]);
+            baseTerrienMap[y * width + x] = Perlin_Get2d(x, y, 0.08, 7);
+            printf("; %f", baseTerrienMap[y * width + x]);
         }
         // printf("\n--------------------------\n");
     }
@@ -192,8 +204,11 @@ int main()
     ComfigSeed();
     gen_seed();
 
-    PopPerlinNoiseArray(64, 64);
-    map_t main_map = InitializeMap(64, 64, 16);
+    baseTerrienMap = MallocFloatArrys(baseTerrienMap, WorkingMapWidth, WorkingMapHeight);
+
+    printf("hehe %p \n", baseTerrienMap);
+    PopPerlinNoiseArray(WorkingMapWidth, WorkingMapHeight);
+    map_t main_map = InitializeMap(WorkingMapWidth, WorkingMapHeight, 16);
 
     InitWindow(main_window_C.width, main_window_C.height, main_window_C.title.str);
     //------------------------------------------------------------------------------
@@ -202,12 +217,13 @@ int main()
         BeginDrawing();
         ClearBackground(WHITE);
 
-        DrawMap(&main_map, 64, 64);
+        DrawMap(&main_map, WorkingMapWidth, WorkingMapHeight);
 
         EndDrawing();
     }
 
     FreeMap(&main_map);
+    free(baseTerrienMap);
 
     return 0;
 }
