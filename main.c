@@ -204,12 +204,18 @@ int main()
     ComfigSeed();
     gen_seed();
 
+    // Makes map
     baseTerrienMap = MallocFloatArrys(baseTerrienMap, WorkingMapWidth, WorkingMapHeight);
 
-    printf("hehe %p \n", baseTerrienMap);
+    TurnOnSeedOffset(true);
+
+    // makes Hight map
     PopPerlinNoiseArray(WorkingMapWidth, WorkingMapHeight);
+
+    // creats tiles + map
     map_t main_map = InitializeMap(WorkingMapWidth, WorkingMapHeight, 16);
 
+    // makes window
     InitWindow(main_window_C.width, main_window_C.height, main_window_C.title.str);
     //------------------------------------------------------------------------------
     while (!WindowShouldClose())

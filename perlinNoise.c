@@ -1,14 +1,31 @@
 #include <math.h>
 #include <stdlib.h>
 
-int SEED = 10449399;
+int SEED = 1000;
+int SEEDOFFSET = 0;
+bool RandomSeed = false;
 
 void gen_seed()
 {
-    int *temp_seed = malloc(sizeof(int));
-    SEED = (long)temp_seed;
-    printf("seed: %p\n", temp_seed);
-    free(temp_seed);
+    if (RandomSeed == true)
+    {
+        int *temp_seed = malloc(sizeof(int));
+        SEED = (long)temp_seed;
+        printf("seed: %p\n", temp_seed);
+        free(temp_seed);
+    }
+}
+
+void TurnOnSeedOffset(bool setOffsetOn)
+{
+    if (setOffsetOn == true)
+    {
+        SEEDOFFSET = 1000;
+    }
+    else
+    {
+        SEEDOFFSET = 0;
+    }
 }
 
 static const unsigned char HASH[] = {
@@ -27,7 +44,7 @@ static const unsigned char HASH[] = {
 
 static int noise2(int x, int y)
 {
-    int yindex = (y + SEED) % 256;
+    int yindex = (y + SEED + SEEDOFFSET) % 256;
     if (yindex < 0)
         yindex += 256;
     int xindex = (HASH[yindex] + x) % 256;
