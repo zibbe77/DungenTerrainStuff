@@ -12,10 +12,10 @@ float output[4096];
 
 typedef enum tile_types_e
 {
-    TILE_GRASS,
     TILE_WATER,
-    TILE_FLOOR,
-    TILE_WALL
+    TILE_GRASS,
+    TILE_MOUNTAIN,
+    TILE_ERROR
 } tile_types_e;
 
 typedef struct tile_t
@@ -55,13 +55,17 @@ tile_types_e TypeControler(int arrayNum)
 {
     // printf("test 1 %f \n", output[arrayNum]);
     // printf("test %d \n", arrayNum);
-    if (output[arrayNum] < 0.5f)
+    if (output[arrayNum] < 0.4f)
     {
         return 0;
     }
-    else
+    else if (output[arrayNum] < 0.6f)
     {
         return 1;
+    }
+    else
+    {
+        return 2;
     }
 
     return 3;
@@ -121,7 +125,7 @@ void PerlinNoise2D(int width, int height, int octaves, float *output, float *noi
         for (int y = 0; y < height; y++)
         {
             float noise = 0.0f;
-            float scale = 5.0f;
+            float scale = 1.0f;
             float scaleAcc = 0.0f;
 
             for (int o = 0; o < octaves; o++)
@@ -138,6 +142,7 @@ void PerlinNoise2D(int width, int height, int octaves, float *output, float *noi
 
                 float blendX = (float)(x - sampleX1) / (float)pitch;
                 float blendY = (float)(y - sampleY1) / (float)pitch;
+                printf("blendX %f \n", blendX);
 
                 float sample1 = (1.0f - blendX) * noiceSeed[sampleY1 * width + sampleX1] + blendX * noiceSeed[sampleY1 * width + sampleX2];
                 float sample2 = (1.0f - blendX) * noiceSeed[sampleY2 * width + sampleX1] + blendX * noiceSeed[sampleY2 * width + sampleX2];
@@ -145,6 +150,7 @@ void PerlinNoise2D(int width, int height, int octaves, float *output, float *noi
                 noise += (blendY * (sample2 - sample1) + sample1) * scale;
                 scaleAcc += scale;
             }
+
             // printf("test %f \n ", noise / scaleAcc);
             // printf("num %d \n ", y * width + x);
             output[y * width + x] = noise / scaleAcc;
@@ -160,14 +166,18 @@ void DrawMap(map_t *map, int x, int y)
         {
             switch (map->tiles[(y * map->width) + x].type)
             {
-            case TILE_GRASS:
-
-                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, GREEN);
-                break;
             case TILE_WATER:
                 DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, BLUE);
                 break;
-
+            case TILE_GRASS:
+                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, GREEN);
+                break;
+            case TILE_MOUNTAIN:
+                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, GRAY);
+                break;
+            case TILE_ERROR:
+                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, PURPLE);
+                break;
             default:
                 DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, PURPLE);
                 break;
@@ -210,7 +220,7 @@ int main()
         printf("\n %d >-------------------------------------------------------------------\n", x);
     }
 
-    map_t main_map = InitializeMap(64, 64, 32);
+    map_t main_map = InitializeMap(64, 64, 16);
 
     InitWindow(main_window_C.width, main_window_C.height, main_window_C.title.str);
     //------------------------------------------------------------------------------
