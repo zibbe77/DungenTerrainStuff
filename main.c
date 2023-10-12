@@ -6,15 +6,19 @@
 #include "raylib.h"
 #include "raymath.h"
 
+#include "perlinNoise.c"
+
 int seed = 0;
 int tileSize = 32;
 float output[4096];
 
 typedef enum tile_types_e
 {
+    TILE_DEEP_WATER,
     TILE_WATER,
     TILE_GRASS,
     TILE_MOUNTAIN,
+    TILE_HIGH_MOUNTAIN,
     TILE_ERROR
 } tile_types_e;
 
@@ -43,6 +47,9 @@ window_C main_window_C = {
     .height = 1080,
     .title = {"My Window", 8}};
 
+// map + tiles
+//------------------------------------------------------------------------
+
 typedef struct map_t
 {
     int width;
@@ -55,17 +62,25 @@ tile_types_e TypeControler(int arrayNum)
 {
     // printf("test 1 %f \n", output[arrayNum]);
     // printf("test %d \n", arrayNum);
-    if (output[arrayNum] < 0.4f)
+    if (output[arrayNum] < 0.3f)
     {
-        return 0;
+        return TILE_DEEP_WATER;
+    }
+    else if (output[arrayNum] < 0.4f)
+    {
+        return TILE_WATER;
     }
     else if (output[arrayNum] < 0.6f)
     {
-        return 1;
+        return TILE_GRASS;
+    }
+    else if (output[arrayNum] < 0.69f)
+    {
+        return TILE_MOUNTAIN;
     }
     else
     {
-        return 2;
+        return TILE_HIGH_MOUNTAIN;
     }
 
     return 3;
@@ -99,6 +114,43 @@ void FreeMap(map_t *map)
     free(map->tiles);
 }
 
+void DrawMap(map_t *map, int x, int y)
+{
+    for (int y = 0; y < map->height; y++)
+    {
+        for (int x = 0; x < map->width; x++)
+        {
+            switch (map->tiles[(y * map->width) + x].type)
+            {
+            case TILE_DEEP_WATER:
+                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, DARKBLUE);
+                break;
+            case TILE_WATER:
+                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, BLUE);
+                break;
+            case TILE_GRASS:
+                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, GREEN);
+                break;
+            case TILE_MOUNTAIN:
+                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, LIGHTGRAY);
+                break;
+            case TILE_HIGH_MOUNTAIN:
+                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, GRAY);
+                break;
+            case TILE_ERROR:
+                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, PURPLE);
+                break;
+            default:
+                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, PURPLE);
+                break;
+            }
+            //  map->tiles[(y * map->width) + x];
+        }
+    }
+}
+
+// random seed
+//------------------------------------------------------------------------
 void ComfigSeed()
 {
     if (seed == 0)
@@ -118,82 +170,18 @@ void CreatTileMap()
     float height = main_window_C.height / tileSize;
 }
 
-void PerlinNoise2D(int width, int height, int octaves, float *output, float *noiceSeed)
+// noise gen
+//------------------------------------------------------------------------
+void PopPerlinNoiseArray(int width, int height)
 {
-    for (int x = 0; x < width; x++)
+    for (int y = 0; y < height; y++)
     {
-        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
         {
-            float noise = 0.0f;
-            float scale = 1.0f;
-            float scaleAcc = 0.0f;
-
-            for (int o = 0; o < octaves; o++)
-            {
-                // printf("y %d\n", o);
-
-                int pitch = width >> o;
-
-                int sampleX1 = (x / pitch) * pitch;
-                int sampleY1 = (y / pitch) * pitch;
-
-                int sampleX2 = (sampleX1 + pitch) % width;
-                int sampleY2 = (sampleY1 + pitch) % width;
-
-                float blendX = (float)(x - sampleX1) / (float)pitch;
-                float blendY = (float)(y - sampleY1) / (float)pitch;
-                printf("blendX %f \n", blendX);
-
-                float sample1 = (1.0f - blendX) * noiceSeed[sampleY1 * width + sampleX1] + blendX * noiceSeed[sampleY1 * width + sampleX2];
-                float sample2 = (1.0f - blendX) * noiceSeed[sampleY2 * width + sampleX1] + blendX * noiceSeed[sampleY2 * width + sampleX2];
-
-                noise += (blendY * (sample2 - sample1) + sample1) * scale;
-                scaleAcc += scale;
-            }
-
-            // printf("test %f \n ", noise / scaleAcc);
-            // printf("num %d \n ", y * width + x);
-            output[y * width + x] = noise / scaleAcc;
+            output[y * width + x] = Perlin_Get2d(x, y, 0.08, 7);
+            printf("; %f", output[y * width + x]);
         }
-    }
-}
-
-void DrawMap(map_t *map, int x, int y)
-{
-    for (int y = 0; y < map->height; y++)
-    {
-        for (int x = 0; x < map->width; x++)
-        {
-            switch (map->tiles[(y * map->width) + x].type)
-            {
-            case TILE_WATER:
-                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, BLUE);
-                break;
-            case TILE_GRASS:
-                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, GREEN);
-                break;
-            case TILE_MOUNTAIN:
-                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, GRAY);
-                break;
-            case TILE_ERROR:
-                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, PURPLE);
-                break;
-            default:
-                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, PURPLE);
-                break;
-            }
-            //  map->tiles[(y * map->width) + x];
-        }
-    }
-}
-
-void RandomNoice(float *noiceSeed)
-{
-    for (int i = 0; i < 4096; i++)
-    {
-        // noiceSeed[i] = rand() % 1;
-        noiceSeed[i] = (float)rand() / (float)RAND_MAX;
-        //  printf("Rand: %f", noiceSeed[i]);
+        // printf("\n--------------------------\n");
     }
 }
 
@@ -202,24 +190,9 @@ int main()
     // setup
     //------------------------------------------------------------------------------
     ComfigSeed();
+    gen_seed();
 
-    float noiceSeed[4096];
-    RandomNoice(noiceSeed);
-
-    printf("Seed: %d \n", seed);
-
-    PerlinNoise2D(64, 64, 6, output, noiceSeed);
-
-    for (int x = 0; x < 64; x++)
-    {
-        for (int y = 0; y < 64; y++)
-        {
-            printf("%d: %f ", y, output[y * 64 + x]);
-            // printf("%d: %f ", y, noiceSeed[y * 64 + x]);
-        }
-        printf("\n %d >-------------------------------------------------------------------\n", x);
-    }
-
+    PopPerlinNoiseArray(64, 64);
     map_t main_map = InitializeMap(64, 64, 16);
 
     InitWindow(main_window_C.width, main_window_C.height, main_window_C.title.str);
