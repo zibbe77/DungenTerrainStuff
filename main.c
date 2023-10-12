@@ -121,7 +121,7 @@ void PerlinNoise2D(int width, int height, int octaves, float *output, float *noi
         for (int y = 0; y < height; y++)
         {
             float noise = 0.0f;
-            float scale = 1.0f;
+            float scale = 5.0f;
             float scaleAcc = 0.0f;
 
             for (int o = 0; o < octaves; o++)
@@ -142,11 +142,11 @@ void PerlinNoise2D(int width, int height, int octaves, float *output, float *noi
                 float sample1 = (1.0f - blendX) * noiceSeed[sampleY1 * width + sampleX1] + blendX * noiceSeed[sampleY1 * width + sampleX2];
                 float sample2 = (1.0f - blendX) * noiceSeed[sampleY2 * width + sampleX1] + blendX * noiceSeed[sampleY2 * width + sampleX2];
 
-                noise += (blendX * (sample2 - sample1) + sample1) * scale;
+                noise += (blendY * (sample2 - sample1) + sample1) * scale;
                 scaleAcc += scale;
             }
-            printf("test %f \n ", noise / scaleAcc);
-            printf("num %d \n ", y * width + x);
+            // printf("test %f \n ", noise / scaleAcc);
+            // printf("num %d \n ", y * width + x);
             output[y * width + x] = noise / scaleAcc;
         }
     }
@@ -169,6 +169,7 @@ void DrawMap(map_t *map, int x, int y)
                 break;
 
             default:
+                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, PURPLE);
                 break;
             }
             //  map->tiles[(y * map->width) + x];
@@ -178,10 +179,11 @@ void DrawMap(map_t *map, int x, int y)
 
 void RandomNoice(float *noiceSeed)
 {
-    for (int i = 0; i < 64; i++)
+    for (int i = 0; i < 4096; i++)
     {
-        noiceSeed[i] = rand();
-        // printf("Rand: %f", noiceSeed[i]);
+        // noiceSeed[i] = rand() % 1;
+        noiceSeed[i] = (float)rand() / (float)RAND_MAX;
+        //  printf("Rand: %f", noiceSeed[i]);
     }
 }
 
@@ -196,7 +198,17 @@ int main()
 
     printf("Seed: %d \n", seed);
 
-    PerlinNoise2D(64, 64, 4, output, noiceSeed);
+    PerlinNoise2D(64, 64, 6, output, noiceSeed);
+
+    for (int x = 0; x < 64; x++)
+    {
+        for (int y = 0; y < 64; y++)
+        {
+            printf("%d: %f ", y, output[y * 64 + x]);
+            // printf("%d: %f ", y, noiceSeed[y * 64 + x]);
+        }
+        printf("\n %d >-------------------------------------------------------------------\n", x);
+    }
 
     map_t main_map = InitializeMap(64, 64, 32);
 
