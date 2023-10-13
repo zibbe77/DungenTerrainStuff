@@ -8,11 +8,10 @@
 
 #include "perlinNoise.c"
 
-#define WorkingMapWidth 64
-#define WorkingMapHeight 124
+#define WorkingMapWidth 124
+#define WorkingMapHeight 64
 
 int seed = 0;
-int tileSize = 32;
 
 float *baseTerrienMap;
 float *moreDetailMap;
@@ -91,8 +90,6 @@ tile_types_e TypeControler(int arrayNum)
     }
 
     return 3;
-
-    // return rand() % 2;
 }
 
 map_t InitializeMap(int width, int height, int tileSize)
@@ -130,28 +127,33 @@ void DrawMap(map_t *map, int x, int y)
             switch (map->tiles[(y * map->width) + x].type)
             {
             case TILE_DEEP_WATER:
-                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, DARKBLUE);
+                DrawRectangle(x * map->tileSize, y * map->tileSize, map->tileSize, map->tileSize, DARKBLUE);
                 break;
             case TILE_WATER:
-                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, BLUE);
+                DrawRectangle(x * map->tileSize, y * map->tileSize, map->tileSize, map->tileSize, BLUE);
                 break;
             case TILE_GRASS:
-                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, GREEN);
+                DrawRectangle(x * map->tileSize, y * map->tileSize, map->tileSize, map->tileSize, GREEN);
                 break;
             case TILE_MOUNTAIN:
-                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, LIGHTGRAY);
+                DrawRectangle(x * map->tileSize, y * map->tileSize, map->tileSize, map->tileSize, LIGHTGRAY);
                 break;
             case TILE_HIGH_MOUNTAIN:
-                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, GRAY);
+                DrawRectangle(x * map->tileSize, y * map->tileSize, map->tileSize, map->tileSize, GRAY);
                 break;
             case TILE_ERROR:
-                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, PURPLE);
+                DrawRectangle(x * map->tileSize, y * map->tileSize, map->tileSize, map->tileSize, PURPLE);
                 break;
             default:
-                DrawRectangle(x * map->tileSize, y * map->tileSize, tileSize, tileSize, PURPLE);
+                DrawRectangle(x * map->tileSize, y * map->tileSize, map->tileSize, map->tileSize, PURPLE);
                 break;
             }
-            //  map->tiles[(y * map->width) + x];
+
+            // debugg
+            // char str[8];
+            // sprintf(str, "%d", x);
+
+            // DrawText(str, x * map->tileSize, y * map->tileSize, map->tileSize / 2, RED);
         }
     }
 }
@@ -178,12 +180,6 @@ void ComfigSeed()
     {
         srand(seed);
     }
-}
-
-void CreatTileMap()
-{
-    float width = main_window_C.width / tileSize;
-    float height = main_window_C.height / tileSize;
 }
 
 void clearData(int width, int height, float *dataArray)
@@ -252,7 +248,7 @@ int main()
     Addmaps(WorkingMapWidth, WorkingMapHeight);
 
     // creats tiles + map
-    map_t main_map = InitializeMap(WorkingMapWidth, WorkingMapHeight, 4);
+    map_t main_map = InitializeMap(WorkingMapWidth, WorkingMapHeight, 16);
 
     // makes window
     InitWindow(main_window_C.width, main_window_C.height, main_window_C.title.str);
