@@ -8,8 +8,8 @@
 
 #include "perlinNoise.c"
 
-#define WorkingMapWidth 124
-#define WorkingMapHeight 64
+#define WorkingMapWidth 64
+#define WorkingMapHeight 124
 
 int seed = 0;
 int tileSize = 32;
