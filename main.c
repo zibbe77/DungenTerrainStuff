@@ -7,6 +7,7 @@
 #include "raymath.h"
 
 #include "perlinNoise.c"
+#include "linkedList.c"
 
 #define WorkingMapWidth 124
 #define WorkingMapHeight 64
@@ -15,8 +16,6 @@ int seed = 0;
 
 float *baseTerrienMap;
 float *moreDetailMap;
-
-float *endMap;
 
 typedef enum tile_types_e
 {
@@ -68,23 +67,23 @@ tile_types_e TypeControler(int arrayNum)
 {
     // printf("test 1 %f \n", baseTerrienMap[arrayNum]);
     // printf("test %d \n", arrayNum);
-    if (endMap[arrayNum] < 0.3f)
+    if (baseTerrienMap[arrayNum] < 0.3f)
     {
         return TILE_DEEP_WATER;
     }
-    else if (endMap[arrayNum] < 0.4f)
+    else if (baseTerrienMap[arrayNum] < 0.4f)
     {
         return TILE_WATER;
     }
-    else if (endMap[arrayNum] < 0.6f)
+    else if (baseTerrienMap[arrayNum] < 0.6f)
     {
         return TILE_GRASS;
     }
-    else if (endMap[arrayNum] < 0.69f)
+    else if (baseTerrienMap[arrayNum] < 0.69f)
     {
         return TILE_MOUNTAIN;
     }
-    else if (endMap[arrayNum] < 1)
+    else if (baseTerrienMap[arrayNum] < 1)
     {
         return TILE_HIGH_MOUNTAIN;
     }
@@ -207,19 +206,6 @@ void PopPerlinNoiseArray(int width, int height, float *dataArray, double freq, i
     }
 }
 
-void Addmaps(int width, int height)
-{
-    for (int y = 0; y < height; y++)
-    {
-        for (int x = 0; x < width; x++)
-        {
-            endMap[y * width + x] = (baseTerrienMap[y * width + x] + moreDetailMap[y * width + x]) / 2;
-            // printf("; %f", endMap[y * width + x]);
-        }
-        // printf("\n--------------------------\n");
-    }
-}
-
 int main()
 {
     // setup
@@ -231,24 +217,31 @@ int main()
     baseTerrienMap = MallocFloatArrys(baseTerrienMap, WorkingMapWidth, WorkingMapHeight);
     moreDetailMap = MallocFloatArrys(moreDetailMap, WorkingMapWidth, WorkingMapHeight);
 
-    endMap = MallocFloatArrys(endMap, WorkingMapWidth, WorkingMapHeight);
-
     // Clear data
     clearData(WorkingMapWidth, WorkingMapHeight, baseTerrienMap);
     clearData(WorkingMapWidth, WorkingMapHeight, moreDetailMap);
-    clearData(WorkingMapWidth, WorkingMapHeight, endMap);
 
     // makes Hight map
-    PopPerlinNoiseArray(WorkingMapWidth, WorkingMapHeight, baseTerrienMap, 0.025, 4);
+    PopPerlinNoiseArray(WorkingMapWidth, WorkingMapHeight, baseTerrienMap, 0.055, 4);
+    // PopPerlinNoiseArray(WorkingMapWidth, WorkingMapHeight, baseTerrienMap, 0.025, 4);
 
     TurnOnSeedOffset(true);
-    PopPerlinNoiseArray(WorkingMapWidth, WorkingMapHeight, moreDetailMap, 0.25, 4);
-
-    // Puts maps togeder
-    Addmaps(WorkingMapWidth, WorkingMapHeight);
+    // PopPerlinNoiseArray(WorkingMapWidth, WorkingMapHeight, moreDetailMap, 0.25, 4);
 
     // creats tiles + map
     map_t main_map = InitializeMap(WorkingMapWidth, WorkingMapHeight, 16);
+
+    // linked list test
+    //------------------------------------------------------------------------------
+    CreatLinkedList(0);
+    AddNodeLinkedList(1);
+    AddNodeLinkedList(2);
+    AddNodeLinkedList(3);
+
+    RemoveNodeLinkedList(1);
+
+    PrintLinkedList();
+    printf("after print \n");
 
     // makes window
     InitWindow(main_window_C.width, main_window_C.height, main_window_C.title.str);

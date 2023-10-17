@@ -3,7 +3,7 @@
 
 int SEED = 1000;
 int SEEDOFFSET = 0;
-bool RandomSeed = false;
+bool RandomSeed = true;
 
 void gen_seed()
 {
