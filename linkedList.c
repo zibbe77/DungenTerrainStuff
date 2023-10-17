@@ -7,32 +7,31 @@ typedef struct Linked_Node
     struct Linked_Node *next;
 } Linked_Node;
 
-Linked_Node *linkedHead;
-
-void CreatLinkedList(int data)
+struct Linked_Node *CreatLinkedList(int data)
 {
-    // array = (float *)malloc(width * height * sizeof(float)
-    linkedHead = (Linked_Node *)malloc(sizeof(Linked_Node));
-    linkedHead->data = data;
-    linkedHead->next = NULL;
+    Linked_Node *head = (Linked_Node *)malloc(sizeof(Linked_Node));
+    head->data = data;
+    head->next = NULL;
+
+    return head;
 }
 // printf("test 1 \n");
 
-void AddNodeLinkedList(int data)
+void AddNodeLinkedList(Linked_Node *head, int data)
 {
-    Linked_Node *tempPonter = linkedHead->next;
+    Linked_Node *tempPonter = head->next;
     Linked_Node *newLink = (Linked_Node *)malloc(sizeof(Linked_Node));
-    linkedHead->next = newLink;
+    head->next = newLink;
 
     newLink->next = tempPonter;
 
     newLink->data = data;
 }
 
-void RemoveNodeLinkedList(int intput)
+void RemoveNodeLinkedList(Linked_Node *head, int intput)
 {
-    Linked_Node *tempPonterCurrent = linkedHead->next;
-    Linked_Node *tempPonterPrevious = linkedHead;
+    Linked_Node *tempPonterCurrent = head->next;
+    Linked_Node *tempPonterPrevious = head;
     while (1)
     {
         if (tempPonterCurrent->data == intput)
@@ -53,10 +52,26 @@ void RemoveNodeLinkedList(int intput)
     }
 }
 
-void PrintLinkedList()
+void FreeLinkedList(Linked_Node *head)
 {
-    printf("%d \n", linkedHead->data);
-    Linked_Node *tempPonter = linkedHead->next;
+    Linked_Node *tempPonterNext = head->next;
+    free(head);
+    while (1)
+    {
+        Linked_Node *tempPonterCurrent = tempPonterNext;
+        tempPonterNext = tempPonterNext->next;
+        free(tempPonterCurrent);
+        if (tempPonterNext == NULL)
+        {
+            break;
+        }
+    }
+}
+
+void PrintLinkedList(Linked_Node *head)
+{
+    printf("%d \n", head->data);
+    Linked_Node *tempPonter = head->next;
     while (1)
     {
         printf("%d \n", tempPonter->data);

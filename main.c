@@ -233,14 +233,18 @@ int main()
 
     // linked list test
     //------------------------------------------------------------------------------
-    CreatLinkedList(0);
-    AddNodeLinkedList(1);
-    AddNodeLinkedList(2);
-    AddNodeLinkedList(3);
 
-    RemoveNodeLinkedList(1);
+    Linked_Node *head;
 
-    PrintLinkedList();
+    head = CreatLinkedList(0);
+
+    AddNodeLinkedList(head, 1);
+    AddNodeLinkedList(head, 2);
+    AddNodeLinkedList(head, 3);
+
+    RemoveNodeLinkedList(head, 1);
+
+    PrintLinkedList(head);
     printf("after print \n");
 
     // makes window
