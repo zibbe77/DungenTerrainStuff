@@ -1,4 +1,5 @@
 // https://www.geeksforgeeks.org/program-find-circumcenter-triangle-2/
+// Transulated from c++ to c
 
 #include <math.h>
 #include <stdlib.h>
