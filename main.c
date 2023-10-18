@@ -7,7 +7,7 @@
 #include "raymath.h"
 
 #include "perlinNoise.c"
-#include "linkedList.c"
+#include "Graph.c"
 
 #define WorkingMapWidth 124
 #define WorkingMapHeight 64
@@ -30,8 +30,6 @@ typedef enum tile_types_e
 typedef struct tile_t
 {
     tile_types_e type;
-    int x;
-    int y;
 } tile_t;
 
 typedef struct string_C
@@ -104,9 +102,7 @@ map_t InitializeMap(int width, int height, int tileSize)
         for (int x = 0; x < output.width; x++)
         {
             output.tiles[y * output.width + x] = (tile_t){
-                .type = TypeControler(y * output.width + x),
-                .x = x,
-                .y = y};
+                .type = TypeControler(y * output.width + x)};
         }
     }
     return output;
@@ -234,17 +230,20 @@ int main()
     // linked list test
     //------------------------------------------------------------------------------
 
-    Linked_Node *head;
+    printf("before print \n");
+    int graphSize = 5;
+    GraphVertex *vertex = CreatGraph(graphSize, 0);
+    // printf("test \n");
 
-    head = CreatLinkedList(0);
+    for (int i = 1; i < graphSize; i++)
+    {
+        AddToHeadSlot(vertex, i, i);
+        AddAdjacentNode(vertex, i, i);
+    }
+    RemoveAdjacentNode(vertex, 3, 3);
 
-    AddNodeLinkedList(head, 1);
-    AddNodeLinkedList(head, 2);
-    AddNodeLinkedList(head, 3);
+    PrintGraph(vertex, graphSize);
 
-    RemoveNodeLinkedList(head, 1);
-
-    PrintLinkedList(head);
     printf("after print \n");
 
     // makes window

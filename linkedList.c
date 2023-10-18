@@ -70,8 +70,22 @@ void FreeLinkedList(Linked_Node *head)
 
 void PrintLinkedList(Linked_Node *head)
 {
+    if (head == NULL)
+    {
+        printf("Return head == null \n");
+        return;
+    }
+
     printf("%d \n", head->data);
+
     Linked_Node *tempPonter = head->next;
+
+    if (tempPonter == NULL)
+    {
+        // printf("Return head->next == null \n");
+        return;
+    }
+
     while (1)
     {
         printf("%d \n", tempPonter->data);
