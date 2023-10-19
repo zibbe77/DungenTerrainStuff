@@ -1,11 +1,11 @@
-// https://www.geeksforgeeks.org/program-find-circumcenter-triangle-2/
-// Transulated from c++ to c
-
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <float.h>
+
+// https://www.geeksforgeeks.org/program-find-circumcenter-triangle-2/
+// Transulated from c++ to c
 
 // C++ program to find the CIRCUMCENTER of a
 // triangle

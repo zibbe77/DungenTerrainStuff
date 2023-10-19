@@ -9,7 +9,7 @@
 #include "perlinNoise.c"
 #include "Graph.c"
 
-#define WorkingMapWidth 124
+#define WorkingMapWidth 64
 #define WorkingMapHeight 64
 
 int seed = 0;
