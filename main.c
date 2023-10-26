@@ -8,6 +8,7 @@
 
 #include "perlinNoise.c"
 #include "Graph.c"
+// #include "BowyerWatson.c"
 
 #define WorkingMapWidth 64
 #define WorkingMapHeight 64
@@ -201,6 +202,8 @@ void PopPerlinNoiseArray(int width, int height, float *dataArray, double freq, i
         // printf("\n--------------------------\n");
     }
 }
+
+// BowyerWatson
 
 int main()
 {

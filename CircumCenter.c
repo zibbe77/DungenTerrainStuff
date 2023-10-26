@@ -68,7 +68,7 @@ pair_o lineLineIntersection(double a1, double b1, double c1,
     }
 }
 
-void findCircumCenter(pair_o P, pair_o Q, pair_o R)
+pair_o findCircumCenter(pair_o P, pair_o Q, pair_o R)
 {
     // Line PQ is represented as ax + by = c
     double a, b, c;
@@ -99,14 +99,18 @@ void findCircumCenter(pair_o P, pair_o Q, pair_o R)
     {
         printf("The circumcenter of the triangle PQR is: %f, %f  \n", circumcenter.c1, circumcenter.c2);
     }
+    return circumcenter;
 }
 
-// Driver code.
-int main()
+pair_o Interface(pair_o P, pair_o Q, pair_o R)
 {
-    pair_o P = {.c1 = 6, .c2 = 0};
-    pair_o Q = {.c1 = 0, .c2 = 0};
-    pair_o R = {.c1 = 0, .c2 = 8};
-    findCircumCenter(P, Q, R);
-    return 0;
+    return findCircumCenter(P, Q, R);
 }
+// int main()
+// {
+//     pair_o P = {.c1 = 6, .c2 = 0};
+//     pair_o Q = {.c1 = 0, .c2 = 0};
+//     pair_o R = {.c1 = 0, .c2 = 8};
+//     findCircumCenter(P, Q, R);
+//     return 0;
+// }

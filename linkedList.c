@@ -15,6 +15,13 @@ struct Linked_Node *CreatLinkedList(int data)
 
     return head;
 }
+
+typedef struct ReadReturn
+{
+    int data;
+    Linked_Node *head;
+} ReadReturn;
+
 // printf("test 1 \n");
 
 void AddNodeLinkedList(Linked_Node *head, int data)
@@ -66,6 +73,35 @@ void FreeLinkedList(Linked_Node *head)
             break;
         }
     }
+}
+
+ReadReturn ReadData_Un(Linked_Node *head, int step)
+{
+    Linked_Node *tempPointer = head;
+    for (int i = 0; i < step; i++)
+    {
+        if (tempPointer->next == NULL)
+        {
+            break;
+        }
+        tempPointer = tempPointer->next;
+    }
+
+    ReadReturn readreturn;
+    readreturn.data = tempPointer->data;
+    readreturn.head = tempPointer->next;
+    return readreturn;
+}
+
+int ReaddataAtStep(Linked_Node *head, int step)
+{
+    Linked_Node *tempPointer = head;
+    for (int i = 0; i < step; i++)
+    {
+        tempPointer = tempPointer->next;
+    }
+
+    return tempPointer->data;
 }
 
 void PrintLinkedList(Linked_Node *head)

@@ -3,6 +3,7 @@
         "raylib.h": "c",
         "stdlib.h": "c",
         "ostream": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "ios": "c"
     }
 }

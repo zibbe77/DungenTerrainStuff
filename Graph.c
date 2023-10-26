@@ -59,6 +59,16 @@ void RemoveAdjacentNode(GraphVertex *vertex, int index, int data)
     RemoveNodeLinkedList(vertex[index].head, data);
 }
 
+int ReaddataOne(GraphVertex *vertex, int index, int step)
+{
+    return ReaddataAtStep(vertex[index].head, step);
+}
+
+ReadReturn ReaddataOne_Un(GraphVertex *vertex, int index, int step)
+{
+    return ReadData_Un(vertex[index].head, step);
+}
+
 void PrintGraph(GraphVertex *vertex, int size)
 {
     for (int i = 0; i < size; i++)
