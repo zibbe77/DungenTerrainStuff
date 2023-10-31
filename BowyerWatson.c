@@ -286,6 +286,9 @@ void BowyerWatson(int width, int *pointList, int listSize)
             triangleData[getSlot].p3.index = triangleData[prosesingTriangleIndexList[j]].p1.index;
         }
         // remove old tri
+        for (int j = 0; j < prosesingTriNum; j++)
+        {
+                }
 
         // Look for invalides
     }
