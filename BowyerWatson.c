@@ -126,6 +126,20 @@ void DebugDrawTriangle(GraphVertex *vertex, int graphSize, int width)
     }
 }
 
+int GetSlotTri(int usedTriangles, bool *triangleDataIsSlotFull)
+{
+    // adds tris
+    int getSlot = 0;
+    for (int k = 0; k < usedTriangles; k++)
+    {
+        if (triangleDataIsSlotFull[k] == false)
+        {
+            getSlot = k;
+        }
+    }
+    return getSlot;
+}
+
 void BowyerWatson(int width, int *pointList, int listSize)
 {
     int graphSize = 5;
@@ -147,9 +161,17 @@ void BowyerWatson(int width, int *pointList, int listSize)
     AddAdjacentNode(vertex, 2, 4095);
 
     // adds triangle
+    bool triangleDataIsSlotFull[20];
+
+    for (int i = 0; i < 20; i++)
+    {
+        triangleDataIsSlotFull[i] = false;
+    }
+
     TriangleData triangleData[20];
     TriangleData triangleDatatemp = {.p1.cordent = 0, .p1.index = 0, .p2.cordent = 4095, .p2.index = 1, .p3.cordent = 63, .p3.index = 2};
     triangleData[0] = triangleDatatemp;
+    triangleDataIsSlotFull[0] = true;
 
     // active triangles
     int usedTriangles;
@@ -172,7 +194,8 @@ void BowyerWatson(int width, int *pointList, int listSize)
     // AddAdjacentNode(vertex, 3, 63);
 
     // ändra 1 sen till list size
-    for (int i = 0; i < 1; i++)
+
+    for (int i = 0; i < 2; i++)
     {
         int prosesingTriangleIndexList[20];
         int prosesingTriNum = 0;
@@ -203,15 +226,66 @@ void BowyerWatson(int width, int *pointList, int listSize)
             }
         }
 
-        // Remove conestions
-
         // Add conestions
         for (int j = 0; j < prosesingTriNum; j++)
         {
-            AddAdjacentNode(vertex, i + 3, triangleData[i].p1.cordent);
-            AddAdjacentNode(vertex, i + 3, triangleData[i].p2.cordent);
-            AddAdjacentNode(vertex, i + 3, triangleData[i].p3.cordent);
+
+            // Puts the cordinats of the new point and its relastions
+            AddAdjacentNode(vertex, i + 3, triangleData[prosesingTriangleIndexList[j]].p1.cordent);
+            AddAdjacentNode(vertex, i + 3, triangleData[prosesingTriangleIndexList[j]].p2.cordent);
+            AddAdjacentNode(vertex, i + 3, triangleData[prosesingTriangleIndexList[j]].p3.cordent);
+
+            // add conetstions for the old points
+            AddAdjacentNode(vertex, triangleData[prosesingTriangleIndexList[j]].p1.index, pointList[i]);
+            AddAdjacentNode(vertex, triangleData[prosesingTriangleIndexList[j]].p2.index, pointList[i]);
+            AddAdjacentNode(vertex, triangleData[prosesingTriangleIndexList[j]].p3.index, pointList[i]);
+
+            // tri 1
+            int getSlot = GetSlotTri(usedTriangles, triangleDataIsSlotFull);
+            triangleDataIsSlotFull[getSlot] = true;
+            usedTriangles++;
+
+            // cordinatits
+            triangleData[getSlot].p1.cordent = pointList[i];
+            triangleData[getSlot].p2.cordent = triangleData[prosesingTriangleIndexList[j]].p1.cordent;
+            triangleData[getSlot].p3.cordent = triangleData[prosesingTriangleIndexList[j]].p2.cordent;
+
+            // index
+            triangleData[getSlot].p1.index = i + 3;
+            triangleData[getSlot].p2.index = triangleData[prosesingTriangleIndexList[j]].p1.index;
+            triangleData[getSlot].p3.index = triangleData[prosesingTriangleIndexList[j]].p2.index;
+
+            // tri 2
+            getSlot = GetSlotTri(usedTriangles, triangleDataIsSlotFull);
+            triangleDataIsSlotFull[getSlot] = true;
+            usedTriangles++;
+
+            // cordinatits
+            triangleData[getSlot].p1.cordent = pointList[i];
+            triangleData[getSlot].p2.cordent = triangleData[prosesingTriangleIndexList[j]].p2.cordent;
+            triangleData[getSlot].p3.cordent = triangleData[prosesingTriangleIndexList[j]].p3.cordent;
+
+            // index
+            triangleData[getSlot].p1.index = i + 3;
+            triangleData[getSlot].p2.index = triangleData[prosesingTriangleIndexList[j]].p2.index;
+            triangleData[getSlot].p3.index = triangleData[prosesingTriangleIndexList[j]].p3.index;
+
+            // tri 3
+            getSlot = GetSlotTri(usedTriangles, triangleDataIsSlotFull);
+            triangleDataIsSlotFull[getSlot] = true;
+            usedTriangles++;
+
+            // cordinatits
+            triangleData[getSlot].p1.cordent = pointList[i];
+            triangleData[getSlot].p2.cordent = triangleData[prosesingTriangleIndexList[j]].p3.cordent;
+            triangleData[getSlot].p3.cordent = triangleData[prosesingTriangleIndexList[j]].p1.cordent;
+
+            // index
+            triangleData[getSlot].p1.index = i + 3;
+            triangleData[getSlot].p2.index = triangleData[prosesingTriangleIndexList[j]].p3.index;
+            triangleData[getSlot].p3.index = triangleData[prosesingTriangleIndexList[j]].p1.index;
         }
+        // remove old tri
 
         // Look for invalides
     }
@@ -230,6 +304,7 @@ int main(int argc, char const *argv[])
 
     int pointList[5];
     pointList[0] = 655;
+    pointList[1] = 1055;
 
     BowyerWatson(64, pointList, 5);
     DrawCircleLines(31 * 5 + 100, 31 * 5 + 100, 44.547726 * 5, WHITE);

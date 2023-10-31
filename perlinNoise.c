@@ -1,7 +1,9 @@
 #include <math.h>
 #include <stdlib.h>
-
-// tagen från https://gist.github.com/nowl/828013
+#include <stdio.h>
+#include <time.h>
+#include <float.h>
+// Taken from https://gist.github.com/nowl/828013
 
 int SEED = 1000;
 int SEEDOFFSET = 0;
