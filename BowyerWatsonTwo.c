@@ -146,12 +146,15 @@ bool FindLineDup(LineData lineData, TriangleData *parent)
 {
     for (int i = 0; i < 90; i++)
     {
+        printf("I %d | value %d \n", i, lineDataList_A[i]);
         if (lineDataList_A[i] == true)
         {
+            // printf("C %d test2 \n", testInt);
             if (parent == lineData.parent)
             {
                 continue;
             }
+            // printf("C %d test3 \n", testInt);
             if (Vector2Equals(lineData.point1, lineDataList[i].point1) && Vector2Equals(lineData.point2, lineDataList[i].point2))
             {
                 return true;
@@ -162,6 +165,7 @@ bool FindLineDup(LineData lineData, TriangleData *parent)
             }
         }
     }
+    printf("test 212 \n");
     return false;
 }
 
@@ -264,6 +268,8 @@ void BowyerWatson(Vector2 *pointList, int pointLength)
             }
         }
 
+        // printf("line data size %lu \n", sizeof(LineData));
+
         // remove old
         for (int i = 0; i < workingPointsNum; i++)
         {
@@ -272,12 +278,12 @@ void BowyerWatson(Vector2 *pointList, int pointLength)
         }
     }
 
-    // for (int i = 0; i < 30; i++)
-    // {
-    //     int indexTest = 0;
-    //     printf(" %d: %d \n", indexTest, triangleDataList_A[i]);
-    //     indexTest++;
-    // }
+    int indexTest = 0;
+    for (int i = 0; i < 90; i++)
+    {
+        printf(" %d: %d \n", indexTest, lineDataList_A[i]);
+        indexTest++;
+    }
 }
 
 void DebugDraw()
@@ -316,7 +322,7 @@ int main()
         .y = 30,
     };
     pointList[1] = temp2;
-
+    Setup();
     BowyerWatson(pointList, 2);
 
     while (!WindowShouldClose())
