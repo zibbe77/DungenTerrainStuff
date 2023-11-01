@@ -43,30 +43,54 @@ int FindSlotTri()
 {
     for (int i = 0; i < 30; i++)
     {
-        if (triangleDataList_A[i] == true)
+        if (triangleDataList_A[i] == false)
         {
             return i;
         }
     }
     // never
+    puts("tri list full \n ");
     return -1;
+}
+// Returns the CircumCenter
+Vector2 CaluclateCircumCeneter(TriangleData tridata)
+{
+    pair_o P = {
+        .c1 = tridata.line1->point1.x,
+        .c2 = tridata.line1->point1.y,
+    };
+    pair_o Q = {
+        .c1 = tridata.line2->point1.x,
+        .c2 = tridata.line2->point1.y,
+    };
+    pair_o R = {
+        .c1 = tridata.line3->point1.x,
+        .c2 = tridata.line3->point1.y,
+    };
+    pair_o pairReturn = Interface(P, Q, R);
+    Vector2 vectorReturn = {
+        .x = pairReturn.c1,
+        .y = pairReturn.c2,
+    };
+    return vectorReturn;
 }
 
 int FindSlotLine()
 {
     for (int i = 0; i < 90; i++)
     {
-        if (lineDataList_A[i] == true)
+        if (lineDataList_A[i] == false)
         {
             return i;
         }
     }
     // never
+    puts("line list full \n ");
     return -1;
 }
 
 // CreatTri
-void CreatTri(Vector2 v1, Vector2 v2, Vector2 v3)
+int CreatTri(Vector2 v1, Vector2 v2, Vector2 v3)
 {
     int triSlot = FindSlotTri();
     TriangleData triData;
@@ -98,54 +122,52 @@ void CreatTri(Vector2 v1, Vector2 v2, Vector2 v3)
     // Add global tri list
     triangleDataList[triSlot] = triData;
     triangleDataList_A[triSlot] = true;
+
+    // gets circumcenter
+    triangleDataList[triSlot].circumCenter = CaluclateCircumCeneter(triData);
+
+    return triSlot;
 }
 
 // line function that compairs all lines to make sure we dont have duplicats
 // returns True if its a dup
-bool FindLineDup(LineData lineData)
+// bool FindLineDup(LineData lineData)
+// {
+//     for (int i = 0; i < 90; i++)
+//     {
+//         if (lineDataList_A[i] == true)
+//         {
+
+//             if (Vector2Equals(lineData.point1, lineDataList[i].point1) && Vector2Equals(lineData.point2, lineDataList[i].point2))
+//             {
+//                 return true;
+//             }
+//             if (Vector2Equals(lineData.point1, lineDataList[i].point2) && Vector2Equals(lineData.point2, lineDataList[i].point1))
+//             {
+//                 return true;
+//             }
+//         }
+//     }
+//     return false;
+// }
+
+bool IsItCloserThanCC(TriangleData triangleData, Vector2 point)
 {
-    for (int i = 0; i < 90; i++)
+    float raidus = fabs(Vector2Distance(triangleData.circumCenter, triangleData.line1->point1));
+    float point_Dis = fabs(Vector2Distance(triangleData.circumCenter, point));
+
+    // printf("radius %f point_Dif %f", raidus, point_Dis);
+    if (raidus > point_Dis)
     {
-        if (lineDataList_A[i] == true)
-        {
-
-            if (Vector2Equals(lineData.point1, lineDataList[i].point1) && Vector2Equals(lineData.point2, lineDataList[i].point2))
-            {
-                return true;
-            }
-            if (Vector2Equals(lineData.point1, lineDataList[i].point2) && Vector2Equals(lineData.point2, lineDataList[i].point1))
-            {
-                return true;
-            }
-        }
+        return true;
     }
-    return false;
+    else
+    {
+        return false;
+    }
 }
 
-// Returns the CircumCenter
-Vector2 CaluclateCircumCeneter(TriangleData tridata)
-{
-    pair_o P = {
-        .c1 = tridata.line1->point1.x,
-        .c2 = tridata.line1->point1.y,
-    };
-    pair_o Q = {
-        .c1 = tridata.line2->point1.x,
-        .c2 = tridata.line2->point1.y,
-    };
-    pair_o R = {
-        .c1 = tridata.line3->point1.x,
-        .c2 = tridata.line3->point1.y,
-    };
-    pair_o pairReturn = Interface(P, Q, R);
-    Vector2 vectorReturn = {
-        .x = pairReturn.c1,
-        .y = pairReturn.c2,
-    };
-    return vectorReturn;
-}
-
-void BowyerWatson(Vector2 *pointList)
+void BowyerWatson(Vector2 *pointList, int pointLength)
 {
     // add super tri
     Vector2 v1 = {
@@ -153,27 +175,106 @@ void BowyerWatson(Vector2 *pointList)
         .y = 0,
     };
     Vector2 v2 = {
-        .x = 60,
+        .x = 80,
         .y = 0,
     };
     Vector2 v3 = {
         .x = 0,
-        .y = 30,
+        .y = 80,
     };
     CreatTri(v1, v2, v3);
+
+    // v1.x = 0;
+    // v1.y = 0;
+
+    // v2.x = 60;
+    // v2.y = 0;
+
+    // v3.x = 0;
+    // v3.y = 60;
+    // CreatTri(v1, v2, v3);
+    for (int newP = 0; newP < pointLength; newP++)
+    {
+        int workingPoints[10];
+        int workingPointsNum = 0;
+        // clear
+        for (int i = 0; i < 10; i++)
+        {
+            workingPoints[i] = 0;
+        }
+
+        // Look att all circle save the vaild ones
+
+        for (int i = 0; i < 30; i++)
+        {
+            if (triangleDataList_A[i] == true)
+            {
+                if (IsItCloserThanCC(triangleDataList[i], pointList[newP]))
+                {
+                    workingPoints[workingPointsNum] = i;
+                    workingPointsNum++;
+                }
+            }
+        }
+
+        int tempSave[10];
+        int tempSaveNum = 0;
+        // clear
+        for (int i = 0; i < 10; i++)
+        {
+            tempSave[i] = 0;
+        }
+
+        // creat new triangles
+        for (int i = 0; i < workingPointsNum; i++)
+        {
+            int triNum;
+            tempSave[tempSaveNum] = CreatTri(pointList[newP], triangleDataList[workingPoints[i]].line1->point1, triangleDataList[workingPoints[i]].line2->point1);
+            tempSaveNum++;
+
+            tempSave[tempSaveNum] = CreatTri(pointList[newP], triangleDataList[workingPoints[i]].line2->point1, triangleDataList[workingPoints[i]].line3->point1);
+            tempSaveNum++;
+
+            tempSave[tempSaveNum] = CreatTri(pointList[newP], triangleDataList[workingPoints[i]].line3->point1, triangleDataList[workingPoints[i]].line1->point1);
+            tempSaveNum++;
+        }
+
+        // remove invalid
+        for (int i = 0; i < 10; i++)
+        {
+        }
+
+        // remove old
+        for (int i = 0; i < workingPointsNum; i++)
+        {
+            // need to remove lines to
+            triangleDataList_A[workingPoints[i]] = false;
+        }
+    }
+
+    // for (int i = 0; i < 30; i++)
+    // {
+    //     int indexTest = 0;
+    //     printf(" %d: %d \n", indexTest, triangleDataList_A[i]);
+    //     indexTest++;
+    // }
 }
 
 void DebugDraw()
 {
     float scale = 5;
-    float offset = 50;
+    float offset = 5;
     for (int i = 0; i < 30; i++)
     {
         if (triangleDataList_A[i] == true)
         {
-            DrawLineV(triangleDataList[i].line1->point1, triangleDataList[i].line1->point2, WHITE);
-            DrawLineV(triangleDataList[i].line2->point1, triangleDataList[i].line2->point2, WHITE);
-            DrawLineV(triangleDataList[i].line3->point1, triangleDataList[i].line3->point2, WHITE);
+            // triangle
+            DrawLineV(Vector2Scale(Vector2AddValue(triangleDataList[i].line1->point1, offset), scale), Vector2Scale(Vector2AddValue(triangleDataList[i].line1->point2, offset), scale), WHITE);
+            DrawLineV(Vector2Scale(Vector2AddValue(triangleDataList[i].line2->point1, offset), scale), Vector2Scale(Vector2AddValue(triangleDataList[i].line2->point2, offset), scale), WHITE);
+            DrawLineV(Vector2Scale(Vector2AddValue(triangleDataList[i].line3->point1, offset), scale), Vector2Scale(Vector2AddValue(triangleDataList[i].line3->point2, offset), scale), WHITE);
+
+            // cirkel
+            DrawCircleLines((triangleDataList[i].circumCenter.x + offset) * scale, (triangleDataList[i].circumCenter.y + offset) * scale, fabs(Vector2Distance(triangleDataList[i].circumCenter, triangleDataList[i].line1->point1)) * scale, BLUE);
         }
     }
 }
@@ -185,17 +286,24 @@ int main()
     Vector2 pointList[5];
 
     Vector2 temp = {
-        .x = 5,
-        .y = 5,
+        .x = 20,
+        .y = 20,
     };
     pointList[0] = temp;
 
-    BowyerWatson(pointList);
+    Vector2 temp2 = {
+        .x = 20,
+        .y = 30,
+    };
+    pointList[1] = temp2;
+
+    BowyerWatson(pointList, 2);
 
     while (!WindowShouldClose())
     {
         BeginDrawing();
         ClearBackground(BLACK);
+        DebugDraw();
 
         EndDrawing();
     }
