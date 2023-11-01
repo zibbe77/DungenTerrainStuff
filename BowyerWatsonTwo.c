@@ -12,6 +12,7 @@
 typedef struct LineData
 {
     Vector2 point1, point2;
+    struct TriangleData *parent;
 } LineData;
 
 typedef struct TriangleData
@@ -103,6 +104,8 @@ int CreatTri(Vector2 v1, Vector2 v2, Vector2 v3)
     triData.line1->point1 = v1;
     triData.line1->point2 = v2;
 
+    triData.line1->parent = &triangleDataList[triSlot];
+
     // line 2
     slot = FindSlotLine();
     triData.line2 = &lineDataList[slot];
@@ -111,6 +114,8 @@ int CreatTri(Vector2 v1, Vector2 v2, Vector2 v3)
     triData.line2->point1 = v2;
     triData.line2->point2 = v3;
 
+    triData.line2->parent = &triangleDataList[triSlot];
+
     // line 3
     slot = FindSlotLine();
     triData.line3 = &lineDataList[slot];
@@ -118,6 +123,8 @@ int CreatTri(Vector2 v1, Vector2 v2, Vector2 v3)
 
     triData.line3->point1 = v3;
     triData.line3->point2 = v1;
+
+    triData.line3->parent = &triangleDataList[triSlot];
 
     // Add global tri list
     triangleDataList[triSlot] = triData;
@@ -129,27 +136,34 @@ int CreatTri(Vector2 v1, Vector2 v2, Vector2 v3)
     return triSlot;
 }
 
+void RemoveTri()
+{
+}
+
 // line function that compairs all lines to make sure we dont have duplicats
 // returns True if its a dup
-// bool FindLineDup(LineData lineData)
-// {
-//     for (int i = 0; i < 90; i++)
-//     {
-//         if (lineDataList_A[i] == true)
-//         {
-
-//             if (Vector2Equals(lineData.point1, lineDataList[i].point1) && Vector2Equals(lineData.point2, lineDataList[i].point2))
-//             {
-//                 return true;
-//             }
-//             if (Vector2Equals(lineData.point1, lineDataList[i].point2) && Vector2Equals(lineData.point2, lineDataList[i].point1))
-//             {
-//                 return true;
-//             }
-//         }
-//     }
-//     return false;
-// }
+bool FindLineDup(LineData lineData, TriangleData *parent)
+{
+    for (int i = 0; i < 90; i++)
+    {
+        if (lineDataList_A[i] == true)
+        {
+            if (parent == lineData.parent)
+            {
+                continue;
+            }
+            if (Vector2Equals(lineData.point1, lineDataList[i].point1) && Vector2Equals(lineData.point2, lineDataList[i].point2))
+            {
+                return true;
+            }
+            if (Vector2Equals(lineData.point1, lineDataList[i].point2) && Vector2Equals(lineData.point2, lineDataList[i].point1))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 bool IsItCloserThanCC(TriangleData triangleData, Vector2 point)
 {
@@ -240,8 +254,14 @@ void BowyerWatson(Vector2 *pointList, int pointLength)
         }
 
         // remove invalid
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 10; tempSaveNum++)
         {
+            bool removeBool = FindLineDup(*triangleDataList[tempSave[tempSaveNum]].line1, &triangleDataList[tempSave[tempSaveNum]]);
+            if (removeBool == true)
+            {
+                // remove tringle
+                // and lines
+            }
         }
 
         // remove old
