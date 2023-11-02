@@ -183,11 +183,15 @@ bool FindLineDup(LineData lineData, int *invalidLines, int invalidLinesNum)
 {
     for (int i = 0; i < invalidLinesNum; i++)
     {
-        if (Vector2Equals(lineData.point1, lineDataList[invalidLines[invalidLinesNum]].point1) && Vector2Equals(lineData.point2, lineDataList[invalidLines[invalidLinesNum]].point2))
+        if (lineData.index == i)
+        {
+            continue;
+        }
+        if (Vector2Equals(lineData.point1, lineDataList[invalidLines[i]].point1) && Vector2Equals(lineData.point2, lineDataList[invalidLines[i]].point2))
         {
             return true;
         }
-        if (Vector2Equals(lineData.point1, lineDataList[invalidLines[invalidLinesNum]].point2) && Vector2Equals(lineData.point2, lineDataList[invalidLines[invalidLinesNum]].point1))
+        if (Vector2Equals(lineData.point1, lineDataList[invalidLines[i]].point2) && Vector2Equals(lineData.point2, lineDataList[invalidLines[i]].point1))
         {
             return true;
         }
@@ -437,7 +441,7 @@ int main()
     pointList[2] = temp3;
 
     Setup();
-    BowyerWatson(pointList, 2);
+    BowyerWatson(pointList, 3);
 
     while (!WindowShouldClose())
     {
