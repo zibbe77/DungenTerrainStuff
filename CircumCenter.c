@@ -97,7 +97,7 @@ pair_o findCircumCenter(pair_o P, pair_o Q, pair_o R)
     }
     else
     {
-        printf("The circumcenter of the triangle PQR is: %f, %f  \n", circumcenter.c1, circumcenter.c2);
+        // printf("The circumcenter of the triangle PQR is: %f, %f  \n", circumcenter.c1, circumcenter.c2);
     }
     return circumcenter;
 }

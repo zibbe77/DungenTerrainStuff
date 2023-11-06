@@ -288,7 +288,7 @@ void BowyerWatson(int width, int *pointList, int listSize)
         // remove old tri
         for (int j = 0; j < prosesingTriNum; j++)
         {
-                }
+        }
 
         // Look for invalides
     }

@@ -29,6 +29,8 @@ Vector2 vertexList[90];
 bool triangleDataList_A[30];
 bool lineDataList_A[90];
 
+int uniqueLines[10];
+
 void Setup()
 {
     for (int i = 0; i < 30; i++)
@@ -183,7 +185,7 @@ bool FindLineDup(LineData lineData, int *invalidLines, int invalidLinesNum)
 {
     for (int i = 0; i < invalidLinesNum; i++)
     {
-        if (lineData.index == i)
+        if (lineData.index == invalidLines[i])
         {
             continue;
         }
@@ -192,6 +194,26 @@ bool FindLineDup(LineData lineData, int *invalidLines, int invalidLinesNum)
             return true;
         }
         if (Vector2Equals(lineData.point1, lineDataList[invalidLines[i]].point2) && Vector2Equals(lineData.point2, lineDataList[invalidLines[i]].point1))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool FindLineDupLineList(LineData lineData, LineData *invalidLines, int invalidLinesNum, int index)
+{
+    for (int i = 0; i < invalidLinesNum; i++)
+    {
+        if (index == i)
+        {
+            continue;
+        }
+        if (Vector2Equals(lineData.point1, invalidLines[i].point1) && Vector2Equals(lineData.point2, invalidLines[i].point2))
+        {
+            return true;
+        }
+        if (Vector2Equals(lineData.point1, invalidLines[i].point2) && Vector2Equals(lineData.point2, invalidLines[i].point1))
         {
             return true;
         }
@@ -232,15 +254,6 @@ void BowyerWatson(Vector2 *pointList, int pointLength)
     };
     CreatTri(v1, v2, v3);
 
-    // v1.x = 0;
-    // v1.y = 0;
-
-    // v2.x = 60;
-    // v2.y = 0;
-
-    // v3.x = 0;
-    // v3.y = 60;
-    // CreatTri(v1, v2, v3);
     for (int newP = 0; newP < pointLength; newP++)
     {
         int workingPoints[10];
@@ -273,117 +286,86 @@ void BowyerWatson(Vector2 *pointList, int pointLength)
             tempSave[i] = 0;
         }
 
-        // creat new triangles
-        for (int i = 0; i < workingPointsNum; i++)
+        // creat new triangles for 1
+        if (workingPointsNum == 1)
         {
-            int triNum;
-            tempSave[tempSaveNum] = CreatTri(pointList[newP], triangleDataList[workingPoints[i]].line1->point1, triangleDataList[workingPoints[i]].line2->point1);
-            tempSaveNum++;
-
-            tempSave[tempSaveNum] = CreatTri(pointList[newP], triangleDataList[workingPoints[i]].line2->point1, triangleDataList[workingPoints[i]].line3->point1);
-            tempSaveNum++;
-
-            tempSave[tempSaveNum] = CreatTri(pointList[newP], triangleDataList[workingPoints[i]].line3->point1, triangleDataList[workingPoints[i]].line1->point1);
-            tempSaveNum++;
-        }
-
-        int invalidLines[10];
-        int invalidLinesNum = 0;
-        for (int i = 0; i < 10; i++)
-        {
-            invalidLines[i] = 0;
-        }
-
-        // remove invalid
-
-        //  remove duplicats tri
-        for (int i = 0; i < workingPointsNum; i++)
-        {
-            int sides = 0;
-            // line 1
-            bool removeBool = FindLineDupList(*triangleDataList[workingPoints[i]].line1, &triangleDataList[workingPoints[i]]);
-            if (removeBool == true)
+            for (int i = 0; i < workingPointsNum; i++)
             {
-                sides++;
-            }
-            // line 2
-            removeBool = FindLineDupList(*triangleDataList[workingPoints[i]].line2, &triangleDataList[workingPoints[i]]);
-            if (removeBool == true)
-            {
-                sides++;
-            }
-            // line 3
-            removeBool = FindLineDupList(*triangleDataList[workingPoints[i]].line3, &triangleDataList[workingPoints[i]]);
-            if (removeBool == true)
-            {
-                sides++;
-            }
-            if (sides == 3)
-            {
-                triangleDataList_A[workingPoints[i]] = false;
-                printf("removde tri dup \n");
+                int triNum;
+                tempSave[tempSaveNum] = CreatTri(pointList[newP], triangleDataList[workingPoints[i]].line1->point1, triangleDataList[workingPoints[i]].line2->point1);
+                tempSaveNum++;
+
+                tempSave[tempSaveNum] = CreatTri(pointList[newP], triangleDataList[workingPoints[i]].line2->point1, triangleDataList[workingPoints[i]].line3->point1);
+                tempSaveNum++;
+
+                tempSave[tempSaveNum] = CreatTri(pointList[newP], triangleDataList[workingPoints[i]].line3->point1, triangleDataList[workingPoints[i]].line1->point1);
+                tempSaveNum++;
             }
         }
-
-        // new
-
-        int workingLinesList[10];
-        int workingLinesListNum = 0;
-
-        // get all lines
-        for (int i = 0; i < workingPointsNum; i++)
+        else
         {
-            workingLinesList[workingLinesListNum] = triangleDataList[workingPoints[workingPointsNum]].line1->index;
-            workingLinesListNum++;
+            // finde all unique than make tris
+            // int uniqueLines[10];
+            int uniqueLinesNum = 0;
 
-            workingLinesList[workingLinesListNum] = triangleDataList[workingPoints[workingPointsNum]].line2->index;
-            workingLinesListNum++;
+            // remove invalid list
+            LineData workingLinesList[10];
+            int workingLinesListNum = 0;
 
-            workingLinesList[workingLinesListNum] = triangleDataList[workingPoints[workingPointsNum]].line3->index;
-            workingLinesListNum++;
-        }
-        // printf("workinglinellistNum %d \n", workingLinesListNum);
-
-        // finde dup lines
-        printf(" start \n");
-        for (int i = 0; i < workingLinesListNum; i++)
-        {
-            printf("index i %d \n", i);
-            bool listbool = FindLineDup(lineDataList[workingLinesList[i]], workingLinesList, workingLinesListNum);
-            if (listbool == true)
+            for (int i = 0; i < 10; i++)
             {
-                invalidLines[invalidLinesNum] = workingLinesList[i];
-                invalidLinesNum++;
-                printf("invalid lines %d \n", invalidLinesNum);
+                workingLinesList[i].point1.x = 0;
+                workingLinesList[i].point1.y = 0;
+
+                workingLinesList[i].point2.x = 0;
+                workingLinesList[i].point2.y = 0;
             }
-        }
-        printf(" stop \n");
 
-        // printf("invailde line Num %d \n", invalidLinesNum);
+            // get all lines
+            for (int i = 0; i < workingPointsNum; i++)
+            {
 
-        for (int i = 0; i < tempSaveNum; i++)
-        {
-            // printf("invalide lines %d \n", i);
-            bool removeBool = FindLineDup(*triangleDataList[tempSave[i]].line1, invalidLines, invalidLinesNum);
-            if (removeBool == true)
-            {
-                printf("line 1 \n");
-                // need to remove lines to
-                triangleDataList_A[tempSave[i]] = false;
+                workingLinesList[workingLinesListNum].point1.x = triangleDataList[workingPoints[i]].line1->point1.x;
+                workingLinesList[workingLinesListNum].point1.y = triangleDataList[workingPoints[i]].line1->point1.y;
+
+                workingLinesList[workingLinesListNum].point2.x = triangleDataList[workingPoints[i]].line1->point2.x;
+                workingLinesList[workingLinesListNum].point2.y = triangleDataList[workingPoints[i]].line1->point2.y;
+
+                workingLinesListNum++;
+
+                workingLinesList[workingLinesListNum].point1.x = triangleDataList[workingPoints[i]].line2->point1.x;
+                workingLinesList[workingLinesListNum].point1.y = triangleDataList[workingPoints[i]].line2->point1.y;
+
+                workingLinesList[workingLinesListNum].point2.x = triangleDataList[workingPoints[i]].line2->point2.x;
+                workingLinesList[workingLinesListNum].point2.y = triangleDataList[workingPoints[i]].line2->point2.y;
+
+                workingLinesListNum++;
+
+                workingLinesList[workingLinesListNum].point1.x = triangleDataList[workingPoints[i]].line3->point1.x;
+                workingLinesList[workingLinesListNum].point1.y = triangleDataList[workingPoints[i]].line3->point1.y;
+
+                workingLinesList[workingLinesListNum].point2.x = triangleDataList[workingPoints[i]].line3->point2.x;
+                workingLinesList[workingLinesListNum].point2.y = triangleDataList[workingPoints[i]].line3->point2.y;
+
+                workingLinesListNum++;
             }
-            removeBool = FindLineDup(*triangleDataList[tempSave[i]].line2, invalidLines, invalidLinesNum);
-            if (removeBool == true)
+
+            // findes unique
+            for (int i = 0; i < workingLinesListNum; i++)
             {
-                printf("line 2 \n");
-                // need to remove lines to
-                triangleDataList_A[tempSave[i]] = false;
+                bool listbool = FindLineDupLineList(workingLinesList[i], workingLinesList, workingLinesListNum, i);
+                if (listbool == false)
+                {
+                    uniqueLines[uniqueLinesNum] = i;
+                    uniqueLinesNum++;
+                }
             }
-            removeBool = FindLineDup(*triangleDataList[tempSave[i]].line3, invalidLines, invalidLinesNum);
-            if (removeBool == true)
+
+            // make tris
+            for (int i = 0; i < uniqueLinesNum; i++)
             {
-                // need to remove lines to
-                printf("line 3 \n");
-                triangleDataList_A[tempSave[i]] = false;
+                tempSave[tempSaveNum] = CreatTri(workingLinesList[uniqueLines[i]].point1, workingLinesList[uniqueLines[i]].point2, pointList[newP]);
+                tempSaveNum++;
             }
         }
 
@@ -391,7 +373,6 @@ void BowyerWatson(Vector2 *pointList, int pointLength)
         for (int i = 0; i < workingPointsNum; i++)
         {
             // need to remove lines to
-            printf("remove old  \n");
             triangleDataList_A[workingPoints[i]] = false;
         }
     }
@@ -429,8 +410,8 @@ int main()
     pointList[0] = temp;
 
     Vector2 temp2 = {
-        .x = 20,
-        .y = 30,
+        .x = 40,
+        .y = 20,
     };
     pointList[1] = temp2;
 
@@ -448,6 +429,8 @@ int main()
         BeginDrawing();
         ClearBackground(BLACK);
         DebugDraw();
+        float offset = 5;
+        float scale = 5;
 
         EndDrawing();
     }
