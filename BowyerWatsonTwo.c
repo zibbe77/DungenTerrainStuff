@@ -392,7 +392,7 @@ void DebugDraw()
             DrawLineV(Vector2Scale(Vector2AddValue(triangleDataList[i].line3->point1, offset), scale), Vector2Scale(Vector2AddValue(triangleDataList[i].line3->point2, offset), scale), WHITE);
 
             // cirkel
-            DrawCircleLines((triangleDataList[i].circumCenter.x + offset) * scale, (triangleDataList[i].circumCenter.y + offset) * scale, fabs(Vector2Distance(triangleDataList[i].circumCenter, triangleDataList[i].line1->point1)) * scale, BLUE);
+            // DrawCircleLines((triangleDataList[i].circumCenter.x + offset) * scale, (triangleDataList[i].circumCenter.y + offset) * scale, fabs(Vector2Distance(triangleDataList[i].circumCenter, triangleDataList[i].line1->point1)) * scale, BLUE);
         }
     }
 }
