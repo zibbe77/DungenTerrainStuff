@@ -150,6 +150,7 @@ void BowyerWatson(Vector2 *pointList, int pointLength)
     };
     CreatTri(v1, v2, v3);
 
+    // adds points on at a time and makes tris of it.
     for (int newP = 0; newP < pointLength; newP++)
     {
         int workingPoints[10];
