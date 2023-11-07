@@ -122,7 +122,6 @@ bool IsItCloserThanCC(TriangleData triangleData, Vector2 point)
     float raidus = fabs(Vector2Distance(triangleData.circumCenter, triangleData.line1.point1));
     float point_Dis = fabs(Vector2Distance(triangleData.circumCenter, point));
 
-    // printf("radius %f point_Dif %f", raidus, point_Dis);
     if (raidus > point_Dis)
     {
         return true;
@@ -133,21 +132,9 @@ bool IsItCloserThanCC(TriangleData triangleData, Vector2 point)
     }
 }
 
-void BowyerWatson(Vector2 *pointList, int pointLength)
+void BowyerWatson(Vector2 *pointList, int pointLength, Vector2 v1, Vector2 v2, Vector2 v3)
 {
     // add super tri
-    Vector2 v1 = {
-        .x = 0,
-        .y = 0,
-    };
-    Vector2 v2 = {
-        .x = 80,
-        .y = 0,
-    };
-    Vector2 v3 = {
-        .x = 0,
-        .y = 80,
-    };
     CreatTri(v1, v2, v3);
 
     // adds points on at a time and makes tris of it.
@@ -183,87 +170,68 @@ void BowyerWatson(Vector2 *pointList, int pointLength)
             tempSave[i] = 0;
         }
 
-        // creat new triangles for 1
-        if (workingPointsNum == 1)
+        // finde all unique than make tris
+        int uniqueLinesNum = 0;
+        int uniqueLines[10];
+
+        // remove invalid list
+        LineData workingLinesList[10];
+        int workingLinesListNum = 0;
+
+        for (int i = 0; i < 10; i++)
         {
-            for (int i = 0; i < workingPointsNum; i++)
+            workingLinesList[i].point1.x = 0;
+            workingLinesList[i].point1.y = 0;
+
+            workingLinesList[i].point2.x = 0;
+            workingLinesList[i].point2.y = 0;
+        }
+
+        // get all lines
+        for (int i = 0; i < workingPointsNum; i++)
+        {
+
+            workingLinesList[workingLinesListNum].point1.x = triangleDataList[workingPoints[i]].line1.point1.x;
+            workingLinesList[workingLinesListNum].point1.y = triangleDataList[workingPoints[i]].line1.point1.y;
+
+            workingLinesList[workingLinesListNum].point2.x = triangleDataList[workingPoints[i]].line1.point2.x;
+            workingLinesList[workingLinesListNum].point2.y = triangleDataList[workingPoints[i]].line1.point2.y;
+
+            workingLinesListNum++;
+
+            workingLinesList[workingLinesListNum].point1.x = triangleDataList[workingPoints[i]].line2.point1.x;
+            workingLinesList[workingLinesListNum].point1.y = triangleDataList[workingPoints[i]].line2.point1.y;
+
+            workingLinesList[workingLinesListNum].point2.x = triangleDataList[workingPoints[i]].line2.point2.x;
+            workingLinesList[workingLinesListNum].point2.y = triangleDataList[workingPoints[i]].line2.point2.y;
+
+            workingLinesListNum++;
+
+            workingLinesList[workingLinesListNum].point1.x = triangleDataList[workingPoints[i]].line3.point1.x;
+            workingLinesList[workingLinesListNum].point1.y = triangleDataList[workingPoints[i]].line3.point1.y;
+
+            workingLinesList[workingLinesListNum].point2.x = triangleDataList[workingPoints[i]].line3.point2.x;
+            workingLinesList[workingLinesListNum].point2.y = triangleDataList[workingPoints[i]].line3.point2.y;
+
+            workingLinesListNum++;
+        }
+
+        // findes unique
+        for (int i = 0; i < workingLinesListNum; i++)
+        {
+            bool listbool = FindLineDupLineList(workingLinesList[i], workingLinesList, workingLinesListNum, i);
+            if (listbool == false)
             {
-                int triNum;
-                tempSave[tempSaveNum] = CreatTri(pointList[newP], triangleDataList[workingPoints[i]].line1.point1, triangleDataList[workingPoints[i]].line2.point1);
-                tempSaveNum++;
-
-                tempSave[tempSaveNum] = CreatTri(pointList[newP], triangleDataList[workingPoints[i]].line2.point1, triangleDataList[workingPoints[i]].line3.point1);
-                tempSaveNum++;
-
-                tempSave[tempSaveNum] = CreatTri(pointList[newP], triangleDataList[workingPoints[i]].line3.point1, triangleDataList[workingPoints[i]].line1.point1);
-                tempSaveNum++;
+                uniqueLines[uniqueLinesNum] = i;
+                uniqueLinesNum++;
             }
         }
-        else
+
+        // make tris
+        for (int i = 0; i < uniqueLinesNum; i++)
         {
-            // finde all unique than make tris
-            int uniqueLinesNum = 0;
-            int uniqueLines[10];
-
-            // remove invalid list
-            LineData workingLinesList[10];
-            int workingLinesListNum = 0;
-
-            for (int i = 0; i < 10; i++)
-            {
-                workingLinesList[i].point1.x = 0;
-                workingLinesList[i].point1.y = 0;
-
-                workingLinesList[i].point2.x = 0;
-                workingLinesList[i].point2.y = 0;
-            }
-
-            // get all lines
-            for (int i = 0; i < workingPointsNum; i++)
-            {
-
-                workingLinesList[workingLinesListNum].point1.x = triangleDataList[workingPoints[i]].line1.point1.x;
-                workingLinesList[workingLinesListNum].point1.y = triangleDataList[workingPoints[i]].line1.point1.y;
-
-                workingLinesList[workingLinesListNum].point2.x = triangleDataList[workingPoints[i]].line1.point2.x;
-                workingLinesList[workingLinesListNum].point2.y = triangleDataList[workingPoints[i]].line1.point2.y;
-
-                workingLinesListNum++;
-
-                workingLinesList[workingLinesListNum].point1.x = triangleDataList[workingPoints[i]].line2.point1.x;
-                workingLinesList[workingLinesListNum].point1.y = triangleDataList[workingPoints[i]].line2.point1.y;
-
-                workingLinesList[workingLinesListNum].point2.x = triangleDataList[workingPoints[i]].line2.point2.x;
-                workingLinesList[workingLinesListNum].point2.y = triangleDataList[workingPoints[i]].line2.point2.y;
-
-                workingLinesListNum++;
-
-                workingLinesList[workingLinesListNum].point1.x = triangleDataList[workingPoints[i]].line3.point1.x;
-                workingLinesList[workingLinesListNum].point1.y = triangleDataList[workingPoints[i]].line3.point1.y;
-
-                workingLinesList[workingLinesListNum].point2.x = triangleDataList[workingPoints[i]].line3.point2.x;
-                workingLinesList[workingLinesListNum].point2.y = triangleDataList[workingPoints[i]].line3.point2.y;
-
-                workingLinesListNum++;
-            }
-
-            // findes unique
-            for (int i = 0; i < workingLinesListNum; i++)
-            {
-                bool listbool = FindLineDupLineList(workingLinesList[i], workingLinesList, workingLinesListNum, i);
-                if (listbool == false)
-                {
-                    uniqueLines[uniqueLinesNum] = i;
-                    uniqueLinesNum++;
-                }
-            }
-
-            // make tris
-            for (int i = 0; i < uniqueLinesNum; i++)
-            {
-                tempSave[tempSaveNum] = CreatTri(workingLinesList[uniqueLines[i]].point1, workingLinesList[uniqueLines[i]].point2, pointList[newP]);
-                tempSaveNum++;
-            }
+            tempSave[tempSaveNum] = CreatTri(workingLinesList[uniqueLines[i]].point1, workingLinesList[uniqueLines[i]].point2, pointList[newP]);
+            tempSaveNum++;
         }
 
         // remove old
@@ -294,44 +262,66 @@ void DebugDraw()
     }
 }
 
+void DebugPoints(Vector2 *pointlist, int pointListSize)
+{
+    float scale = 5;
+    float offset = 5;
+    for (int i = 0; i < pointListSize; i++)
+    {
+        DrawCircleV(Vector2Scale(Vector2AddValue(pointlist[i], offset), scale), 5, RED);
+    }
+}
+
+// needs to be insde super tri
+void CreatPoints(Vector2 v2, Vector2 v3, Vector2 *pointList, int pointListSize)
+{
+    float sizeX = (v2.x / 2) - 1;
+    float sizeY = (v3.y / 2) - 1;
+
+    for (int i = 0; i < pointListSize; i++)
+    {
+        pointList[i].x = GetRandomValue(1, sizeX);
+        pointList[i].y = GetRandomValue(1, sizeY);
+    }
+}
+
 int main()
 {
     InitWindow(600, 600, "test");
 
-    Vector2 pointList[5];
+    int viewPoints = 5;
+    Vector2 pointList[10];
 
-    Vector2 temp = {
-        .x = 20,
-        .y = 20,
+    // super tri
+    Vector2 v1 = {
+        .x = 0,
+        .y = 0,
     };
-    pointList[0] = temp;
-
-    Vector2 temp2 = {
-        .x = 40,
-        .y = 20,
+    Vector2 v2 = {
+        .x = 100,
+        .y = 0,
     };
-    pointList[1] = temp2;
-
-    Vector2 temp3 = {
-        .x = 10,
-        .y = 35,
+    Vector2 v3 = {
+        .x = 0,
+        .y = 100,
     };
-    pointList[2] = temp3;
-
-    Vector2 temp4 = {
-        .x = 30,
-        .y = 10,
-    };
-    pointList[3] = temp4;
 
     Setup();
-    BowyerWatson(pointList, 4);
+    CreatPoints(v2, v3, pointList, 10);
+    BowyerWatson(pointList, viewPoints, v1, v2, v3);
 
     while (!WindowShouldClose())
     {
+        if (IsKeyPressed(32))
+        {
+            Setup();
+            CreatPoints(v2, v3, pointList, 10);
+            BowyerWatson(pointList, viewPoints, v1, v2, v3);
+        }
         BeginDrawing();
         ClearBackground(BLACK);
         DebugDraw();
+        DebugPoints(pointList, viewPoints);
         EndDrawing();
     }
 
