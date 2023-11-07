@@ -421,8 +421,14 @@ int main()
     };
     pointList[2] = temp3;
 
+    Vector2 temp4 = {
+        .x = 30,
+        .y = 10,
+    };
+    pointList[3] = temp4;
+
     Setup();
-    BowyerWatson(pointList, 3);
+    BowyerWatson(pointList, 4);
 
     while (!WindowShouldClose())
     {
