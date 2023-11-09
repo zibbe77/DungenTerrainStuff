@@ -243,6 +243,20 @@ void BowyerWatson(Vector2 *pointList, int pointLength, Vector2 v1, Vector2 v2, V
     }
 }
 
+void DebugTri()
+{
+    float scale = 5;
+    float offset = 5;
+    for (int i = 0; i < 30; i++)
+    {
+        if (triangleDataList_A[i] == true)
+        {
+            DrawTriangle(Vector2Scale(Vector2AddValue(triangleDataList[i].line1.point1, offset), scale), Vector2Scale(Vector2AddValue(triangleDataList[i].line2.point1, offset), scale), Vector2Scale(Vector2AddValue(triangleDataList[i].line3.point1, offset), scale), BLUE);
+            // printf("Point 1 X %f Y %f, Point 2 X %f Y %f, Point 3 X %f Y %f \n", triangleDataList[i].line1.point1.x, triangleDataList[i].line1.point1.y, triangleDataList[i].line2.point1.x, triangleDataList[i].line2.point1.y, triangleDataList[i].line3.point1.x, triangleDataList[i].line3.point1.y);
+        }
+    }
+}
+
 void DebugDraw()
 {
     float scale = 5;
@@ -257,7 +271,7 @@ void DebugDraw()
             DrawLineV(Vector2Scale(Vector2AddValue(triangleDataList[i].line3.point1, offset), scale), Vector2Scale(Vector2AddValue(triangleDataList[i].line3.point2, offset), scale), WHITE);
 
             // cirkel
-            // DrawCircleLines((triangleDataList[i].circumCenter.x + offset) * scale, (triangleDataList[i].circumCenter.y + offset) * scale, fabs(Vector2Distance(triangleDataList[i].circumCenter, triangleDataList[i].line1->point1)) * scale, BLUE);
+            // DrawCircleLines((triangleDataList[i].circumCenter.x + offset) * scale, (triangleDataList[i].circumCenter.y + offset) * scale, fabs(Vector2Distance(triangleDataList[i].circumCenter, triangleDataList[i].line1.point1)) * scale, BLUE);
         }
     }
 }
@@ -289,7 +303,7 @@ int main()
 {
     InitWindow(600, 600, "test");
 
-    int viewPoints = 5;
+    int viewPoints = 3;
     Vector2 pointList[10];
 
     // super tri
@@ -317,9 +331,18 @@ int main()
             Setup();
             CreatPoints(v2, v3, pointList, 10);
             BowyerWatson(pointList, viewPoints, v1, v2, v3);
+
+            for (int i = 0; i < 30; i++)
+            {
+                if (triangleDataList_A[i] == true)
+                {
+                    printf("index %d is tri \n", i);
+                }
+            }
         }
         BeginDrawing();
         ClearBackground(BLACK);
+        DebugTri();
         DebugDraw();
         DebugPoints(pointList, viewPoints);
         EndDrawing();
