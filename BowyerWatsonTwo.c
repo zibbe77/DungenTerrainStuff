@@ -303,7 +303,7 @@ int main()
 {
     InitWindow(600, 600, "test");
 
-    int viewPoints = 3;
+    int viewPoints = 10;
     Vector2 pointList[10];
 
     // super tri
@@ -331,14 +331,6 @@ int main()
             Setup();
             CreatPoints(v2, v3, pointList, 10);
             BowyerWatson(pointList, viewPoints, v1, v2, v3);
-
-            for (int i = 0; i < 30; i++)
-            {
-                if (triangleDataList_A[i] == true)
-                {
-                    printf("index %d is tri \n", i);
-                }
-            }
         }
         BeginDrawing();
         ClearBackground(BLACK);
