@@ -11,30 +11,34 @@
 
 typedef struct LineData
 {
-    Vector2 point1, point2;
+    Vector2 points[2];
 } LineData;
 
 typedef struct TriangleData
 {
-    LineData line1, line2, line3;
+    LineData lines[3];
     Vector2 circumCenter;
 } TriangleData;
 
-TriangleData triangleDataList[30];
+int dataPointsSize = 30;
 
+TriangleData triangleDataList[30];
 bool triangleDataList_A[30];
 
 void Setup()
 {
-    for (int i = 0; i < 30; i++)
+    for (int i = 0; i < dataPointsSize; i++)
     {
         triangleDataList_A[i] = false;
     }
+
+    // maloc
+    // tridata and triboollist
 }
 
 int FindSlotTri()
 {
-    for (int i = 0; i < 30; i++)
+    for (int i = 0; i < dataPointsSize; i++)
     {
         if (triangleDataList_A[i] == false)
         {
@@ -50,16 +54,16 @@ int FindSlotTri()
 Vector2 CaluclateCircumCeneter(TriangleData tridata)
 {
     pair_o P = {
-        .c1 = tridata.line1.point1.x,
-        .c2 = tridata.line1.point1.y,
+        .c1 = tridata.lines[0].points[0].x,
+        .c2 = tridata.lines[0].points[0].y,
     };
     pair_o Q = {
-        .c1 = tridata.line2.point1.x,
-        .c2 = tridata.line2.point1.y,
+        .c1 = tridata.lines[1].points[0].x,
+        .c2 = tridata.lines[1].points[0].y,
     };
     pair_o R = {
-        .c1 = tridata.line3.point1.x,
-        .c2 = tridata.line3.point1.y,
+        .c1 = tridata.lines[2].points[0].x,
+        .c2 = tridata.lines[2].points[0].y,
     };
     pair_o pairReturn = Interface(P, Q, R);
     Vector2 vectorReturn = {
@@ -76,16 +80,16 @@ int CreatTri(Vector2 v1, Vector2 v2, Vector2 v3)
     TriangleData triData;
 
     // line 1
-    triData.line1.point1 = v1;
-    triData.line1.point2 = v2;
+    triData.lines[0].points[0] = v1;
+    triData.lines[0].points[1] = v2;
 
     // line 2
-    triData.line2.point1 = v2;
-    triData.line2.point2 = v3;
+    triData.lines[1].points[0] = v2;
+    triData.lines[1].points[1] = v3;
 
     // line 3
-    triData.line3.point1 = v3;
-    triData.line3.point2 = v1;
+    triData.lines[2].points[0] = v3;
+    triData.lines[2].points[1] = v1;
 
     // Add global tri list
     triangleDataList[triSlot] = triData;
@@ -97,19 +101,19 @@ int CreatTri(Vector2 v1, Vector2 v2, Vector2 v3)
     return triSlot;
 }
 
-bool FindLineDupLineList(LineData lineData, LineData *invalidLines, int invalidLinesNum, int index)
+bool FindLineDupLineList(LineData lineData, LineData *sampelLines, int sampelSize, int index)
 {
-    for (int i = 0; i < invalidLinesNum; i++)
+    for (int i = 0; i < sampelSize; i++)
     {
         if (index == i)
         {
             continue;
         }
-        if (Vector2Equals(lineData.point1, invalidLines[i].point1) && Vector2Equals(lineData.point2, invalidLines[i].point2))
+        if (Vector2Equals(lineData.points[0], sampelLines[i].points[0]) && Vector2Equals(lineData.points[1], sampelLines[i].points[1]))
         {
             return true;
         }
-        if (Vector2Equals(lineData.point1, invalidLines[i].point2) && Vector2Equals(lineData.point2, invalidLines[i].point1))
+        if (Vector2Equals(lineData.points[0], sampelLines[i].points[1]) && Vector2Equals(lineData.points[1], sampelLines[i].points[0]))
         {
             return true;
         }
@@ -119,7 +123,7 @@ bool FindLineDupLineList(LineData lineData, LineData *invalidLines, int invalidL
 
 bool IsItCloserThanCC(TriangleData triangleData, Vector2 point)
 {
-    float raidus = fabs(Vector2Distance(triangleData.circumCenter, triangleData.line1.point1));
+    float raidus = fabs(Vector2Distance(triangleData.circumCenter, triangleData.lines[0].points[0]));
     float point_Dis = fabs(Vector2Distance(triangleData.circumCenter, point));
 
     if (raidus > point_Dis)
@@ -140,17 +144,17 @@ void BowyerWatson(Vector2 *pointList, int pointLength, Vector2 v1, Vector2 v2, V
     // adds points on at a time and makes tris of it.
     for (int newP = 0; newP < pointLength; newP++)
     {
-        int workingPoints[10];
+        int workingPoints[dataPointsSize];
         int workingPointsNum = 0;
         // clear
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < dataPointsSize; i++)
         {
             workingPoints[i] = 0;
         }
 
         // Look att all circle save the vaild ones
 
-        for (int i = 0; i < 30; i++)
+        for (int i = 0; i < dataPointsSize; i++)
         {
             if (triangleDataList_A[i] == true)
             {
@@ -162,64 +166,42 @@ void BowyerWatson(Vector2 *pointList, int pointLength, Vector2 v1, Vector2 v2, V
             }
         }
 
-        int tempSave[10];
-        int tempSaveNum = 0;
-        // clear
-        for (int i = 0; i < 10; i++)
-        {
-            tempSave[i] = 0;
-        }
-
         // finde all unique than make tris
         int uniqueLinesNum = 0;
-        int uniqueLines[10];
+        int uniqueLines[dataPointsSize];
 
         // remove invalid list
-        LineData workingLinesList[30];
-        int workingLinesListNum = 0;
+        LineData badLinesList[30];
+        int badLinesListNum = 0;
 
         for (int i = 0; i < 10; i++)
         {
-            workingLinesList[i].point1.x = 0;
-            workingLinesList[i].point1.y = 0;
+            badLinesList[i].points[0].x = 0;
+            badLinesList[i].points[0].y = 0;
 
-            workingLinesList[i].point2.x = 0;
-            workingLinesList[i].point2.y = 0;
+            badLinesList[i].points[1].x = 0;
+            badLinesList[i].points[1].y = 0;
         }
 
         // get all lines
         for (int i = 0; i < workingPointsNum; i++)
         {
+            for (int k = 0; k < 3; k++)
+            {
+                badLinesList[badLinesListNum].points[0].x = triangleDataList[workingPoints[i]].lines[k].points[0].x;
+                badLinesList[badLinesListNum].points[0].y = triangleDataList[workingPoints[i]].lines[k].points[0].y;
 
-            workingLinesList[workingLinesListNum].point1.x = triangleDataList[workingPoints[i]].line1.point1.x;
-            workingLinesList[workingLinesListNum].point1.y = triangleDataList[workingPoints[i]].line1.point1.y;
+                badLinesList[badLinesListNum].points[1].x = triangleDataList[workingPoints[i]].lines[k].points[1].x;
+                badLinesList[badLinesListNum].points[1].y = triangleDataList[workingPoints[i]].lines[k].points[1].y;
 
-            workingLinesList[workingLinesListNum].point2.x = triangleDataList[workingPoints[i]].line1.point2.x;
-            workingLinesList[workingLinesListNum].point2.y = triangleDataList[workingPoints[i]].line1.point2.y;
-
-            workingLinesListNum++;
-
-            workingLinesList[workingLinesListNum].point1.x = triangleDataList[workingPoints[i]].line2.point1.x;
-            workingLinesList[workingLinesListNum].point1.y = triangleDataList[workingPoints[i]].line2.point1.y;
-
-            workingLinesList[workingLinesListNum].point2.x = triangleDataList[workingPoints[i]].line2.point2.x;
-            workingLinesList[workingLinesListNum].point2.y = triangleDataList[workingPoints[i]].line2.point2.y;
-
-            workingLinesListNum++;
-
-            workingLinesList[workingLinesListNum].point1.x = triangleDataList[workingPoints[i]].line3.point1.x;
-            workingLinesList[workingLinesListNum].point1.y = triangleDataList[workingPoints[i]].line3.point1.y;
-
-            workingLinesList[workingLinesListNum].point2.x = triangleDataList[workingPoints[i]].line3.point2.x;
-            workingLinesList[workingLinesListNum].point2.y = triangleDataList[workingPoints[i]].line3.point2.y;
-
-            workingLinesListNum++;
+                badLinesListNum++;
+            }
         }
 
         // findes unique
-        for (int i = 0; i < workingLinesListNum; i++)
+        for (int i = 0; i < badLinesListNum; i++)
         {
-            bool listbool = FindLineDupLineList(workingLinesList[i], workingLinesList, workingLinesListNum, i);
+            bool listbool = FindLineDupLineList(badLinesList[i], badLinesList, badLinesListNum, i);
             if (listbool == false)
             {
                 uniqueLines[uniqueLinesNum] = i;
@@ -230,8 +212,7 @@ void BowyerWatson(Vector2 *pointList, int pointLength, Vector2 v1, Vector2 v2, V
         // make tris
         for (int i = 0; i < uniqueLinesNum; i++)
         {
-            tempSave[tempSaveNum] = CreatTri(workingLinesList[uniqueLines[i]].point1, workingLinesList[uniqueLines[i]].point2, pointList[newP]);
-            tempSaveNum++;
+            CreatTri(badLinesList[uniqueLines[i]].points[0], badLinesList[uniqueLines[i]].points[1], pointList[newP]);
         }
 
         // remove old
@@ -243,32 +224,18 @@ void BowyerWatson(Vector2 *pointList, int pointLength, Vector2 v1, Vector2 v2, V
     }
 }
 
-void DebugTri()
-{
-    float scale = 5;
-    float offset = 5;
-    for (int i = 0; i < 30; i++)
-    {
-        if (triangleDataList_A[i] == true)
-        {
-            DrawTriangle(Vector2Scale(Vector2AddValue(triangleDataList[i].line1.point1, offset), scale), Vector2Scale(Vector2AddValue(triangleDataList[i].line2.point1, offset), scale), Vector2Scale(Vector2AddValue(triangleDataList[i].line3.point1, offset), scale), BLUE);
-            // printf("Point 1 X %f Y %f, Point 2 X %f Y %f, Point 3 X %f Y %f \n", triangleDataList[i].line1.point1.x, triangleDataList[i].line1.point1.y, triangleDataList[i].line2.point1.x, triangleDataList[i].line2.point1.y, triangleDataList[i].line3.point1.x, triangleDataList[i].line3.point1.y);
-        }
-    }
-}
-
 void DebugDraw()
 {
     float scale = 5;
     float offset = 5;
-    for (int i = 0; i < 30; i++)
+    for (int i = 0; i < dataPointsSize; i++)
     {
         if (triangleDataList_A[i] == true)
         {
             // triangle
-            DrawLineV(Vector2Scale(Vector2AddValue(triangleDataList[i].line1.point1, offset), scale), Vector2Scale(Vector2AddValue(triangleDataList[i].line1.point2, offset), scale), WHITE);
-            DrawLineV(Vector2Scale(Vector2AddValue(triangleDataList[i].line2.point1, offset), scale), Vector2Scale(Vector2AddValue(triangleDataList[i].line2.point2, offset), scale), WHITE);
-            DrawLineV(Vector2Scale(Vector2AddValue(triangleDataList[i].line3.point1, offset), scale), Vector2Scale(Vector2AddValue(triangleDataList[i].line3.point2, offset), scale), WHITE);
+            DrawLineV(Vector2Scale(Vector2AddValue(triangleDataList[i].lines[0].points[0], offset), scale), Vector2Scale(Vector2AddValue(triangleDataList[i].lines[0].points[1], offset), scale), WHITE);
+            DrawLineV(Vector2Scale(Vector2AddValue(triangleDataList[i].lines[1].points[0], offset), scale), Vector2Scale(Vector2AddValue(triangleDataList[i].lines[1].points[1], offset), scale), WHITE);
+            DrawLineV(Vector2Scale(Vector2AddValue(triangleDataList[i].lines[2].points[0], offset), scale), Vector2Scale(Vector2AddValue(triangleDataList[i].lines[2].points[1], offset), scale), WHITE);
 
             // cirkel
             // DrawCircleLines((triangleDataList[i].circumCenter.x + offset) * scale, (triangleDataList[i].circumCenter.y + offset) * scale, fabs(Vector2Distance(triangleDataList[i].circumCenter, triangleDataList[i].line1.point1)) * scale, BLUE);
@@ -334,7 +301,6 @@ int main()
         }
         BeginDrawing();
         ClearBackground(BLACK);
-        DebugTri();
         DebugDraw();
         DebugPoints(pointList, viewPoints);
         EndDrawing();
