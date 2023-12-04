@@ -21,6 +21,7 @@ typedef struct TriangleData
 } TriangleData;
 
 int dataPointsSize = 30;
+int dataPointsSizeDividedByTre = 10;
 
 TriangleData triangleDataList[30];
 bool triangleDataList_A[30];
@@ -171,7 +172,7 @@ void BowyerWatson(Vector2 *pointList, int pointLength, Vector2 v1, Vector2 v2, V
         int uniqueLines[dataPointsSize];
 
         // remove invalid list
-        LineData badLinesList[30];
+        LineData badLinesList[dataPointsSize];
         int badLinesListNum = 0;
 
         for (int i = 0; i < 10; i++)
