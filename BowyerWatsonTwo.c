@@ -178,7 +178,7 @@ void BowyerWatson(Vector2 *pointList, int pointLength, Vector2 v1, Vector2 v2, V
         LineData workingLinesList[30];
         int workingLinesListNum = 0;
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 30; i++)
         {
             workingLinesList[i].point1.x = 0;
             workingLinesList[i].point1.y = 0;
